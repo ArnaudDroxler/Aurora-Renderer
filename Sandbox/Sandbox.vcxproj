@@ -92,6 +92,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\SandBoxApp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\AuroraRenderer\AuroraRenderer.vcxproj">
       <Project>{86164401-72E4-3707-5B78-A82D47E5136C}</Project>
     </ProjectReference>
