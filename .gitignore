@@ -351,4 +351,4 @@ healthchecksdb
 MigrationBackup/
 
 #Imgui log 
-.tlog
+*.tlog
