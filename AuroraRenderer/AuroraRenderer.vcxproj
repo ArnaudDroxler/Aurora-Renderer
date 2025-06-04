@@ -98,6 +98,10 @@
     <ClInclude Include="src\AuroraRenderer.h" />
     <ClInclude Include="src\aurorapch.h" />
     <ClInclude Include="src\Aurora\Core\EntryPoint.h" />
+    <ClInclude Include="src\Aurora\Core\Window.h" />
+    <ClInclude Include="src\Aurora\Events\ApplicationEvent.h" />
+    <ClInclude Include="src\Aurora\Events\Event.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Aurora\Core\Debug.cpp" />
@@ -105,6 +109,7 @@
     <ClCompile Include="src\aurorapch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="external\imgui\ImGui.vcxproj">

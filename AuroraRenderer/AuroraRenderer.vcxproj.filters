@@ -4,6 +4,7 @@
     <ClCompile Include="src\aurorapch.cpp" />
     <ClCompile Include="src\Aurora\Core\Application.cpp" />
     <ClCompile Include="src\Aurora\Core\Debug.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AuroraRenderer.h" />
@@ -11,5 +12,9 @@
     <ClInclude Include="src\Aurora\Core\EntryPoint.h" />
     <ClInclude Include="src\Aurora\Core\Application.h" />
     <ClInclude Include="src\Aurora\Core\Debug.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
+    <ClInclude Include="src\Aurora\Core\Window.h" />
+    <ClInclude Include="src\Aurora\Events\Event.h" />
+    <ClInclude Include="src\Aurora\Events\ApplicationEvent.h" />
   </ItemGroup>
 </Project>
