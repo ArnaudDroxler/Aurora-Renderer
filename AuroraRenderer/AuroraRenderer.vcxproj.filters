@@ -5,6 +5,7 @@
     <ClCompile Include="src\Aurora\Core\Application.cpp" />
     <ClCompile Include="src\Aurora\Core\Debug.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AuroraRenderer.h" />
@@ -16,5 +17,10 @@
     <ClInclude Include="src\Aurora\Core\Window.h" />
     <ClInclude Include="src\Aurora\Events\Event.h" />
     <ClInclude Include="src\Aurora\Events\ApplicationEvent.h" />
+    <ClInclude Include="src\Aurora\Events\KeyEvent.h" />
+    <ClInclude Include="src\Aurora\Events\MouseEvent.h" />
+    <ClInclude Include="src\Aurora\Core\Input.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
+    <ClInclude Include="src\Aurora\Core\KeyCode.h" />
   </ItemGroup>
 </Project>

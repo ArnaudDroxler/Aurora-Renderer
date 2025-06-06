@@ -1,8 +1,15 @@
 #include "aurorapch.h"
-#include "WindowsWindow.h"
-#include "Aurora/Events/ApplicationEvent.h"
-#include "WinDef.h"
+#include "AuroraRenderer.h"
 
+#include "WindowsWindow.h"
+
+#include "Aurora/Events/ApplicationEvent.h"
+#include "Aurora/Events/MouseEvent.h"
+#include "Aurora/Events/KeyEvent.h"
+
+#include "WinDef.h"
+#include "windowsx.h"
+#include <stdio.h>
 
 namespace Aurora
 {
@@ -56,6 +63,107 @@ namespace Aurora
 		switch (uMsg)
 		{
 
+			case WM_KEYDOWN:
+			{
+				UINT key = (UINT)wParam;
+
+				WORD repeatCount = LOWORD(lParam);
+
+				BOOL isRepeat = (lParam & 0x40000000) != 0;
+
+				KeyPressedEvent event = { (int) key, isRepeat ? 1 : 0 };
+				eventCallback(event);
+			}
+			break;
+
+			case WM_KEYUP:
+			{
+				UINT key = (UINT)wParam;
+
+				KeyReleasedEvent event = { (int)key };
+				eventCallback(event);
+			}
+			break;
+
+			case WM_CHAR:
+			{
+				WCHAR ch = (WCHAR)wParam;
+
+				KeyTypedEvent event = { (int)ch };
+				eventCallback(event);
+			}
+			break;
+
+			case WM_MOUSEMOVE:
+			{
+				float mousePosX = GET_X_LPARAM(lParam);
+				float mousePosY = GET_Y_LPARAM(lParam);
+
+				MouseMovedEvent event = { mousePosX, mousePosY };
+				eventCallback(event);
+			}
+			break;
+
+			case WM_LBUTTONDOWN:
+			{
+				float mousePosX = GET_X_LPARAM(lParam);
+				float mousePosY = GET_Y_LPARAM(lParam);
+
+				MouseButtonPressedEvent event = { (int)KeyCode::MouseLeft, mousePosX, mousePosY };
+				eventCallback(event);
+			}
+			break;
+
+			case WM_LBUTTONUP:
+			{
+				MouseButtonReleasedEvent event = { (int)KeyCode::MouseLeft };
+			}
+			break;
+
+			case WM_RBUTTONDOWN:
+			{
+				
+				float mousePosX = GET_X_LPARAM(lParam);
+				float mousePosY = GET_Y_LPARAM(lParam);
+
+				MouseButtonPressedEvent event = { (int)KeyCode::MouseRight, mousePosX, mousePosY };
+				eventCallback(event);
+
+			}
+			break;
+
+			case WM_RBUTTONUP:
+			{
+				MouseButtonReleasedEvent event = { (int)KeyCode::MouseRight };
+			}
+			break;
+
+			case WM_MBUTTONDOWN:
+			{
+				float mousePosX = GET_X_LPARAM(lParam);
+				float mousePosY = GET_Y_LPARAM(lParam);
+
+				MouseButtonPressedEvent event = { (int)KeyCode::MouseMiddle, mousePosX, mousePosY };
+				eventCallback(event);
+			}
+			break;
+
+			case WM_MBUTTONUP:
+			{
+				MouseButtonReleasedEvent event = { (int)KeyCode::MouseMiddle };
+			}
+			break;
+
+			case WM_MOUSEWHEEL:
+			{
+				float deltaY = GET_WHEEL_DELTA_WPARAM(wParam);
+				float deltaX = GET_WHEEL_DELTA_WPARAM(wParam);
+
+				MouseScrolledEvent event = { (float)deltaX, (float)deltaY };
+			}
+			break;
+
+
 			case WM_DESTROY:
 			{
 				PostQuitMessage(0);
@@ -80,14 +188,14 @@ namespace Aurora
 					eventCallback(event);
 				}
 
-				return 0;
 			}
+			break;
 
 			default:
 			{
 				return DefWindowProc(hwnd, uMsg, wParam, lParam);
 			}
-			return TRUE;
+			return 0;
 		}
 	}
 

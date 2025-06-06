@@ -1,6 +1,6 @@
 #include "aurorapch.h"
 #include "Application.h"
-#include "Debug.h"
+#include "AuroraRenderer.h"
 #include "Platform/Windows/WindowsWindow.h"
 
 namespace Aurora
@@ -42,6 +42,7 @@ namespace Aurora
 		while (running)
 		{
 			window->OnUpdate();
+
 		}
 
 	}
