@@ -1,6 +1,7 @@
 #include "aurorapch.h"
 #include "WindowsWindow.h"
 #include "Aurora/Events/ApplicationEvent.h"
+#include "WinDef.h"
 
 
 namespace Aurora
@@ -41,22 +42,28 @@ namespace Aurora
 
 	void WindowsWindow::SetEventCallback(const EventCallback& callback)
 	{
-		std::cout << "[DEBUG] SetEventCallback called" << std::endl;
-		std::cout << "[DEBUG] Callback valid before assignment: " << (callback ? "YES" : "NO") << std::endl;
 		eventCallback = callback;
-
-
-		std::cout << "[DEBUG] eventCallback valid after assignment: " << (eventCallback ? "YES" : "NO") << std::endl;
 	}
 
-	LRESULT CALLBACK WindowsWindow::MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
+	void WindowsWindow::SetNativeWindow(HWND hwnd)
 	{
-		switch (umessage)
+		this->hwnd = hwnd;
+	}
+
+	LRESULT CALLBACK WindowsWindow::MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+
+		switch (uMsg)
 		{
+
+			case WM_DESTROY:
+			{
+				PostQuitMessage(0);
+				return 0;
+			}
 			
 			case WM_CLOSE:
 			{
-				Debug::CoreLog("WM_CLOSE");
 				WindowCloseEvent event;
 				eventCallback(event);
 				return 0;
@@ -64,16 +71,26 @@ namespace Aurora
 
 			case WM_SIZE:
 			{
+				unsigned int width = LOWORD(lParam);
+				unsigned int height = HIWORD(lParam);
+				
+				if (eventCallback)
+				{
+					WindowResizeEvent event = { width, height };
+					eventCallback(event);
+				}
 
 				return 0;
 			}
-	
+
 			default:
 			{
-				return DefWindowProc(hwnd, umessage, wparam, lparam);
+				return DefWindowProc(hwnd, uMsg, wParam, lParam);
 			}
+			return TRUE;
 		}
 	}
+
 
 	void WindowsWindow::Init(const WindowProperty& props)
 	{
@@ -153,7 +170,7 @@ namespace Aurora
 			NULL,       
 			NULL,       
 			hinstance,  
-			NULL        
+			this       
 		);
 
 		ShowWindow(hwnd, SW_SHOW);
@@ -168,7 +185,6 @@ namespace Aurora
 
 	void WindowsWindow::Shutdown()
 	{
-		Debug::CoreLog("Shutdown");
 		if (fullscreen)
 		{
 			ChangeDisplaySettings(NULL, 0);
@@ -177,39 +193,44 @@ namespace Aurora
 		DestroyWindow(hwnd);
 		hwnd = NULL;
 
-
 		UnregisterClass(windowsName, hinstance);
 		hinstance = NULL;
 
-		windowsWindow = NULL;
 	}
 
-	LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
+	LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		switch (umessage)
+		WindowsWindow* window = NULL;
+		if (uMsg == WM_NCCREATE)
 		{
-				// Check if the window is being destroyed.
-			case WM_DESTROY:
-			{
-				PostQuitMessage(0);
-				return 0;
-			}
+			CREATESTRUCT* create = (CREATESTRUCT*)lParam;
+			window = (WindowsWindow*)create->lpCreateParams;
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)window);
 
-			case WM_QUIT:
-			{
-				Debug::CoreLog("WM_QUIT");
-				PostQuitMessage(0);
-				return 0;
-			}
-
-			// All other messages pass to the message handler in the system class.
-			default:
-			{
-				return windowsWindow->MessageHandler(hwnd, umessage, wparam, lparam);
-			}
+			window->SetNativeWindow(hwnd);
 		}
-		
+		else
+		{
+			window = (WindowsWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+		}
 
+		if (window)
+		{
+			return window->MessageHandler(uMsg, wParam, lParam);
+		}
+		else
+		{
+			return DefWindowProc(hwnd, uMsg, wParam, lParam);
+		}
+
+	}
+
+
+	inline WindowsWindow* GetAppState(HWND hwnd)
+	{
+		LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+		WindowsWindow* window = reinterpret_cast<WindowsWindow*>(ptr);
+		return window;
 	}
 }
 

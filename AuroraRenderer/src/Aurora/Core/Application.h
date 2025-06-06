@@ -29,6 +29,7 @@ namespace Aurora
 		static Application* Instance;
 
 		bool running;
+		bool minimized;
 	};
 
 	Application* CreateApplication();

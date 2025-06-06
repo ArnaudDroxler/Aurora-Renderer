@@ -2,12 +2,14 @@
 #include "Aurora/Core/EntryPoint.h"
 #include "Aurora/Core/Debug.h"
 
-class SandboxApp : public Aurora::Application
+using namespace Aurora;
+
+class SandboxApp : public Application
 {
 public:
 	SandboxApp()
 	{
-		Aurora::Debug::Info("Hello from SandboxApp");
+		Debug::Log("Hello from SandboxApp");
 	}
 
 	~SandboxApp()

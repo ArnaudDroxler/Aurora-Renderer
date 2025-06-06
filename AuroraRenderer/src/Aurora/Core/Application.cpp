@@ -12,7 +12,7 @@ namespace Aurora
 	{
 		Debug::Init();
 
-		Debug::CoreInfo("Aurora Renderer Init");
+		Debug::CoreLog("Aurora Renderer Init");
 
 		Instance = this;
 
@@ -24,7 +24,7 @@ namespace Aurora
 
 	Application::~Application()
 	{
-		
+
 	}
 
 	void Application::OnEvent(Event& e)
@@ -41,21 +41,31 @@ namespace Aurora
 
 		while (running)
 		{
-
 			window->OnUpdate();
 		}
 
 	}
 
-	bool Application::OnWindowClose(WindowCloseEvent& e)
+	bool Application::OnWindowClose(WindowCloseEvent& event)
 	{
-		Debug::CoreLog("OnWindowClose");
 		running = false;
+
+		Debug::Shutdown();
+
 		return true;
 	}
 
-	bool Application::OnWindowResize(WindowResizeEvent& e)
+	bool Application::OnWindowResize(WindowResizeEvent& event)
 	{
+		Debug::CoreLog(event.ToString());
+		if (event.GetWidth() == 0 || event.GetHeight() == 0)
+		{
+			minimized = true;
+			return false;
+		}
+
+		minimized = false;
+
 		return false;
 	}
 

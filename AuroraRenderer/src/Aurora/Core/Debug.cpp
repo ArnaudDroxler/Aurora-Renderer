@@ -1,6 +1,7 @@
 #include "aurorapch.h"
 #include "Debug.h"
-
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 namespace Aurora
 {
@@ -14,11 +15,17 @@ namespace Aurora
 	void Debug::Init()
 	{
 		spdlog::set_pattern("%^[%T] %n: %v%$");
-		CoreLogger = spdlog::stdout_color_mt("Aurora");
-		CoreLogger->set_level(spdlog::level::trace);
 
-		ClientLogger = spdlog::stdout_color_mt("Application");
-		ClientLogger->set_level(spdlog::level::trace);
+		auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("debug.log", true);
+		auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+		CoreLogger = std::make_shared<spdlog::logger>("Aurora",
+			spdlog::sinks_init_list{ console_sink, file_sink });
+
+
+		ClientLogger = std::make_shared<spdlog::logger>("Application",
+			spdlog::sinks_init_list{ console_sink, file_sink });
+
+		SetLogLevel(spdlog::level::trace);
 
 		enableCoreLog = true;
 		enableClientLog = true;
@@ -34,73 +41,19 @@ namespace Aurora
 		enableClientLog = false;
 	}
 
-	void Debug::CoreLog(const char * str)
-	{
-		if (enableCoreLog) {
-			CoreLogger->trace(str);
-		}
+	void Debug::SetLogLevel(spdlog::level::level_enum level) {
+		CoreLogger->set_level(level);
+		ClientLogger->set_level(level);
 	}
-
-	void Debug::CoreInfo(const char * str)
+	void Debug::Flush()
 	{
-		if (enableCoreLog) {
-			CoreLogger->info(str);
-		}
+		CoreLogger->flush();
+		ClientLogger->flush();
 	}
-
-	void Debug::CoreWarning(const char * str)
+	void Debug::Shutdown()
 	{
-		if (enableCoreLog) {
-			CoreLogger->warn(str);
-		}
-	}
+		Flush();
 
-	void Debug::CoreError(const char * str)
-	{
-		if (enableCoreLog) {
-			CoreLogger->error(str);
-		}
-	}
-
-	void Debug::CoreCritical(const char * str)
-	{
-		if (enableCoreLog) {
-			CoreLogger->critical(str);
-		}
-	}
-
-	void Debug::Log(const char * str)
-	{
-		if (enableClientLog) {
-			ClientLogger->trace(str);
-		}
-	}
-
-	void Debug::Info(const char * str)
-	{
-		if (enableClientLog) {
-			ClientLogger->info(str);
-		}
-	}
-
-	void Debug::Warning(const char * str)
-	{
-		if (enableClientLog) {
-			ClientLogger->warn(str);
-		}
-	}
-
-	void Debug::Error(const char * str)
-	{
-		if(enableClientLog) {
-			ClientLogger->error(str);
-		}
-	}
-
-	void Debug::Critical(const char * str)
-	{
-		if (enableClientLog) {
-			ClientLogger->critical(str);
-		}
+		spdlog::drop_all();
 	}
 }
