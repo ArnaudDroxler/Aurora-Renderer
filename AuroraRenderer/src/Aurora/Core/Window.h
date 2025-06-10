@@ -2,6 +2,7 @@
 
 #include "aurorapch.h"
 #include "Aurora/Events/Event.h"
+#include "Platform/Renderer/GraphicContext.h"
 
 namespace Aurora
 {
@@ -42,6 +43,7 @@ namespace Aurora
 		virtual void SetEventCallback(const EventCallback& callback) = 0;
 
 		static Window* Create(const WindowProperty& props = WindowProperty());
+
 	};
 	
 }

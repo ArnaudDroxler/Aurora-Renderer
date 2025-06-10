@@ -42,7 +42,7 @@ namespace Aurora
 		while (running)
 		{
 			window->OnUpdate();
-
+			Debug::CoreLog("Application Running");
 		}
 
 	}

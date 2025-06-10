@@ -12,6 +12,8 @@ namespace Aurora
 		return (GetAsyncKeyState(keycode) & 0x8000) != 0;
 	}
 
+
+
 	bool WindowsInput::GetMouseButtonImpl(int keycode)
 	{
 		return (GetAsyncKeyState(keycode) & 0x8000) != 0;

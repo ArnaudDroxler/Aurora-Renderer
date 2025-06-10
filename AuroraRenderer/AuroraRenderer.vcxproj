@@ -93,6 +93,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Platform\Renderer\DirectX\DirectXContext.h" />
     <ClInclude Include="src\Aurora\Core\Debug.h" />
     <ClInclude Include="src\Aurora\Core\Application.h" />
     <ClInclude Include="src\AuroraRenderer.h" />
@@ -105,10 +106,12 @@
     <ClInclude Include="src\Aurora\Events\Event.h" />
     <ClInclude Include="src\Aurora\Events\KeyEvent.h" />
     <ClInclude Include="src\Aurora\Events\MouseEvent.h" />
+    <ClInclude Include="src\Platform\Renderer\GraphicContext.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Platform\Renderer\DirectX\DirectXContext.cpp" />
     <ClCompile Include="src\Aurora\Core\Debug.cpp" />
     <ClCompile Include="src\Aurora\Core\Application.cpp" />
     <ClCompile Include="src\aurorapch.cpp">

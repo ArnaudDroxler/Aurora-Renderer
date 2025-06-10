@@ -6,6 +6,7 @@
 #include "Aurora/Events/ApplicationEvent.h"
 #include "Aurora/Events/MouseEvent.h"
 #include "Aurora/Events/KeyEvent.h"
+#include "Platform/Renderer/DirectX/DirectXContext.h"
 
 #include "WinDef.h"
 #include "windowsx.h"
@@ -34,12 +35,16 @@ namespace Aurora
 	void WindowsWindow::OnUpdate()
 	{
 
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 
+
+		context->BeginScene(1.0f, 0.0f, 0.f, 1.0f);
+
+		context->SwapBuffer();
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
@@ -210,7 +215,7 @@ namespace Aurora
 
 		WNDCLASSEX wc = {};
 
-		hinstance = GetModuleHandle(NULL);
+		hinstance = GetModuleHandle(nullptr);
 
 		std::wstring titleWStr(title.begin(), title.end());
 		windowsName = titleWStr.c_str();
@@ -220,11 +225,11 @@ namespace Aurora
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0;
 		wc.hInstance = hinstance;
-		wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+		wc.hIcon = LoadIcon(nullptr, IDI_WINLOGO);
 		wc.hIconSm = wc.hIcon;
-		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 		wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-		wc.lpszMenuName = NULL;
+		wc.lpszMenuName = nullptr;
 		wc.lpszClassName = windowsName;
 		wc.cbSize = sizeof(WNDCLASSEX);
 
@@ -275,8 +280,8 @@ namespace Aurora
 			windowsName,
 			windowedStyle,
 			posX, posY, width, height,
-			NULL,       
-			NULL,       
+			nullptr,       
+			nullptr,       
 			hinstance,  
 			this       
 		);
@@ -289,26 +294,34 @@ namespace Aurora
 
 
 		ZeroMemory(&msg, sizeof(MSG));
+
+		context = new DirectXContext();
+		context->InitDirectX(width, height, vSync, hwnd, fullscreen, 1000.0f, 0.1f);
+
 	}
 
 	void WindowsWindow::Shutdown()
 	{
+
+		context->Shutdown();
+		context = nullptr;
+
 		if (fullscreen)
 		{
-			ChangeDisplaySettings(NULL, 0);
+			ChangeDisplaySettings(nullptr, 0);
 		}
 
 		DestroyWindow(hwnd);
-		hwnd = NULL;
+		hwnd = nullptr;
 
 		UnregisterClass(windowsName, hinstance);
-		hinstance = NULL;
+		hinstance = nullptr;
 
 	}
 
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		WindowsWindow* window = NULL;
+		WindowsWindow* window = nullptr;
 		if (uMsg == WM_NCCREATE)
 		{
 			CREATESTRUCT* create = (CREATESTRUCT*)lParam;

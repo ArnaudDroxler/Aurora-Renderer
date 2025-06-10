@@ -3,7 +3,7 @@
 #include <windows.h>
 
 #include "Aurora/Core/Window.h"
-
+#include "Platform/Renderer/DirectX/DirectXContext.h"
 
 namespace Aurora
 {
@@ -50,6 +50,7 @@ namespace Aurora
 
 		EventCallback eventCallback;
 		
+		DirectXContext* context;
 	};
 
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

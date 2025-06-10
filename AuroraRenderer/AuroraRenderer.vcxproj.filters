@@ -6,6 +6,7 @@
     <ClCompile Include="src\Aurora\Core\Debug.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
+    <ClCompile Include="src\Platform\Renderer\DirectX\DirectXContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AuroraRenderer.h" />
@@ -22,5 +23,7 @@
     <ClInclude Include="src\Aurora\Core\Input.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Aurora\Core\KeyCode.h" />
+    <ClInclude Include="src\Platform\Renderer\DirectX\DirectXContext.h" />
+    <ClInclude Include="src\Platform\Renderer\GraphicContext.h" />
   </ItemGroup>
 </Project>
