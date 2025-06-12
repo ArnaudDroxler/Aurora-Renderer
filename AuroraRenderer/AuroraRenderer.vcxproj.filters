@@ -1,29 +1,108 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\aurorapch.cpp" />
-    <ClCompile Include="src\Aurora\Core\Application.cpp" />
-    <ClCompile Include="src\Aurora\Core\Debug.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
-    <ClCompile Include="src\Platform\Renderer\DirectX\DirectXContext.cpp" />
+    <Filter Include="Aurora">
+      <UniqueIdentifier>{0FF303A8-FB94-2E7E-E44F-42D2D090B5CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Aurora\Core">
+      <UniqueIdentifier>{C758EA1D-330E-6313-BC02-5DEA28B75917}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Aurora\Events">
+      <UniqueIdentifier>{13B80547-7F78-817D-48B3-CAFAB432C659}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Renderer">
+      <UniqueIdentifier>{10BA9FA4-7CD0-9D3A-C547-295C319D6EC2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Renderer\DirectX">
+      <UniqueIdentifier>{D2AC4455-3E6F-78DF-871F-076CF32051BD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Windows">
+      <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Aurora\Core\Application.h">
+      <Filter>Aurora\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Core\Debug.h">
+      <Filter>Aurora\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Core\EntryPoint.h">
+      <Filter>Aurora\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Core\ImGuiLayer.h">
+      <Filter>Aurora\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Core\Input.h">
+      <Filter>Aurora\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Core\KeyCode.h">
+      <Filter>Aurora\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Core\Layer.h">
+      <Filter>Aurora\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Core\LayerStack.h">
+      <Filter>Aurora\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Core\Window.h">
+      <Filter>Aurora\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Events\ApplicationEvent.h">
+      <Filter>Aurora\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Events\Event.h">
+      <Filter>Aurora\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Events\KeyEvent.h">
+      <Filter>Aurora\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Events\MouseEvent.h">
+      <Filter>Aurora\Events</Filter>
+    </ClInclude>
     <ClInclude Include="src\AuroraRenderer.h" />
+    <ClInclude Include="src\Platform\Renderer\DirectX\DirectXContext.h">
+      <Filter>Platform\Renderer\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Renderer\GraphicContext.h">
+      <Filter>Platform\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
     <ClInclude Include="src\aurorapch.h" />
-    <ClInclude Include="src\Aurora\Core\EntryPoint.h" />
-    <ClInclude Include="src\Aurora\Core\Application.h" />
-    <ClInclude Include="src\Aurora\Core\Debug.h" />
-    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
-    <ClInclude Include="src\Aurora\Core\Window.h" />
-    <ClInclude Include="src\Aurora\Events\Event.h" />
-    <ClInclude Include="src\Aurora\Events\ApplicationEvent.h" />
-    <ClInclude Include="src\Aurora\Events\KeyEvent.h" />
-    <ClInclude Include="src\Aurora\Events\MouseEvent.h" />
-    <ClInclude Include="src\Aurora\Core\Input.h" />
-    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
-    <ClInclude Include="src\Aurora\Core\KeyCode.h" />
-    <ClInclude Include="src\Platform\Renderer\DirectX\DirectXContext.h" />
-    <ClInclude Include="src\Platform\Renderer\GraphicContext.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Aurora\Core\Application.cpp">
+      <Filter>Aurora\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Aurora\Core\Debug.cpp">
+      <Filter>Aurora\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Aurora\Core\ImGuiLayer.cpp">
+      <Filter>Aurora\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Aurora\Core\Layer.cpp">
+      <Filter>Aurora\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Aurora\Core\LayerStack.cpp">
+      <Filter>Aurora\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Renderer\DirectX\DirectXContext.cpp">
+      <Filter>Platform\Renderer\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aurorapch.cpp" />
   </ItemGroup>
 </Project>

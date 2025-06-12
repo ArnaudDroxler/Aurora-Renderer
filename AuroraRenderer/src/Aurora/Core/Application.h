@@ -3,6 +3,10 @@
 #include "Aurora/Core/Window.h"
 #include "Aurora/Events/ApplicationEvent.h"
 
+#include "Aurora/Core/LayerStack.h"
+#include "Aurora/Core/ImGuiLayer.h"
+
+
 namespace Aurora
 {
 	class Application
@@ -15,7 +19,11 @@ namespace Aurora
 
 		void Run();
 
+		void PushLayer(Layer* layer);
+		void PushOverlay(Layer* layer);
+
 		inline Window& GetWindow() { return *window; }
+		inline Window* GetWindowPtr() { return window.get(); }
 
 		inline static Application& Get() { return *Instance; }
 
@@ -25,8 +33,12 @@ namespace Aurora
 		bool OnWindowResize(WindowResizeEvent& e);
 
 		std::unique_ptr<Window> window;
+		LayerStack layerStack;
+		ImGuiLayer* imGuiLayer;
+
 
 		static Application* Instance;
+
 
 		bool running;
 		bool minimized;

@@ -1,6 +1,7 @@
 #include "aurorapch.h"
 #include "Application.h"
 #include "AuroraRenderer.h"
+
 #include "Platform/Windows/WindowsWindow.h"
 
 namespace Aurora
@@ -19,6 +20,10 @@ namespace Aurora
 		window = std::unique_ptr<Window>(Window::Create());
 		window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 
+
+		imGuiLayer = new ImGuiLayer();
+		PushOverlay(imGuiLayer);
+
 		running = true;
 	}
 
@@ -29,11 +34,19 @@ namespace Aurora
 
 	void Application::OnEvent(Event& e)
 	{
+		Debug::CoreLog(e.ToString());
 
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(std::bind(&Application::OnWindowClose, this, std::placeholders::_1));
 		dispatcher.Dispatch<WindowResizeEvent>(std::bind(&Application::OnWindowResize, this, std::placeholders::_1));
 
+		for (auto it = layerStack.end(); it != layerStack.begin(); )
+		{
+			--it;
+			(*it)->OnEvent(e);
+			if (e.Handled)
+				break;
+		}
 	}
 
 	void Application::Run()
@@ -41,10 +54,30 @@ namespace Aurora
 
 		while (running)
 		{
+			window->OnNewFrame();
+
+			for (Layer* layer : layerStack)
+				layer->OnUpdate();
+
+			imGuiLayer->Begin();
+			for (Layer* layer : layerStack)
+				layer->OnImGUIRender();
+			imGuiLayer->End();
+
 			window->OnUpdate();
-			Debug::CoreLog("Application Running");
+
 		}
 
+	}
+
+	void Application::PushLayer(Layer* layer)
+	{
+		layerStack.PushLayer(layer);
+	}
+
+	void Application::PushOverlay(Layer* layer)
+	{
+		layerStack.PushOverlay(layer);
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& event)
@@ -58,7 +91,7 @@ namespace Aurora
 
 	bool Application::OnWindowResize(WindowResizeEvent& event)
 	{
-		Debug::CoreLog(event.ToString());
+
 		if (event.GetWidth() == 0 || event.GetHeight() == 0)
 		{
 			minimized = true;
@@ -66,6 +99,20 @@ namespace Aurora
 		}
 
 		minimized = false;
+
+		WindowsWindow* windowsWindow = dynamic_cast<WindowsWindow*>(window.get());
+		if (windowsWindow && windowsWindow->GetContext())
+		{
+			windowsWindow->GetContext()->OnResize(event.GetWidth(), event.GetHeight());
+		}
+
+		if (imGuiLayer && ImGui::GetCurrentContext())
+		{
+			ImGuiIO& io = ImGui::GetIO();
+			io.DisplaySize = ImVec2((float)event.GetWidth(), (float)event.GetHeight());
+
+			Debug::CoreLog("ImGui DisplaySize upted {0} {1} ", io.DisplaySize.x, io.DisplaySize.y);
+		}
 
 		return false;
 	}

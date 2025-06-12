@@ -7,11 +7,11 @@ workspace "AuroraRenderer"
 		"Release"
 	}
 
-
 outputdir = "%{cfg.buildcfg}-%{cfg.system}"
 
 IncludeDir = {}
 IncludeDir["ImGui"] = "AuroraRenderer/external/imgui"
+IncludeDir["ImGuiBackends"] = "AuroraRenderer/external/imgui/backends"
 
 group "Dependencies"
 	include "AuroraRenderer/external/imgui"
@@ -28,6 +28,8 @@ project "AuroraRenderer"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
 
+	buildoptions { "/utf-8" }
+
 	pchheader "aurorapch.h"
 	pchsource "AuroraRenderer/src/aurorapch.cpp"
 
@@ -37,19 +39,18 @@ project "AuroraRenderer"
 	{
 		"%{prj.name}/src",
 		"%{prj.name}/external/spdlog/include",
-		"%{IncludeDir.ImGui}",
+        "%{IncludeDir.ImGui}",
+        "%{IncludeDir.ImGuiBackends}"
 	}
 
-		
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS"
 	}
 
-	
 	links 
 	{ 
-		"ImGui",
+		"ImGui"
 	}
 
 	filter "configurations:Debug"
@@ -62,13 +63,14 @@ project "AuroraRenderer"
 		runtime "Release"
 		optimize "on"
 
-
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++23"
 	staticruntime "on"
+
+	buildoptions { "/utf-8" }
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
@@ -79,12 +81,14 @@ project "Sandbox"
 	{
 		"AuroraRenderer/src",
 		"AuroraRenderer/external/spdlog/include",
-		"AuroraRenderer/external",
+        "%{IncludeDir.ImGui}",
+        "%{IncludeDir.ImGuiBackends}"
 	}
 
 	links 
 	{
-		"AuroraRenderer"
+		"AuroraRenderer",
+		"ImGui",
 	}
 		
 	filter "configurations:Debug"

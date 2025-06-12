@@ -29,6 +29,7 @@ namespace Aurora
 		using EventCallback = std::function<void(Event&)>;
 
 		virtual void OnUpdate() = 0;
+		virtual void OnNewFrame() = 0;
 
 		virtual unsigned int GetWidth() const = 0;
 		virtual unsigned int GetHeight() const = 0;

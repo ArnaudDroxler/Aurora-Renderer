@@ -4,6 +4,7 @@
 
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "spdlog/fmt/fmt.h"
 
 namespace Aurora
 {
@@ -20,104 +21,125 @@ namespace Aurora
         static void Shutdown();
 
 		template<typename... Args>
-		static void Log(Args&&... args) {
-			if (sizeof...(args) == 0) {
-				ClientLogger->info("");
-			}
-			else {
-				ClientLogger->info(BuildMessage(std::forward<Args>(args)...));
+		static void Log(const std::string& format, Args&&... args) {
+			if (enableClientLog) {
+				if constexpr (sizeof...(args) == 0) {
+					ClientLogger->info(format);
+				}
+				else {
+					ClientLogger->info(fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
+				}
 			}
 		}
 
-        template<typename... Args>
-        static void Warning(Args&&... args) {
-            if (sizeof...(args) == 0) {
-                ClientLogger->warn("");
-            }
-            else {
-                ClientLogger->warn(BuildMessage(std::forward<Args>(args)...));
-            }
-        }
+		template<typename... Args>
+		static void Warning(const std::string& format, Args&&... args) {
+			if (enableClientLog) {
+				if constexpr (sizeof...(args) == 0) {
+					ClientLogger->warn(format);
+				}
+				else {
+					ClientLogger->warn(fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
+				}
+			}
+		}
 
-        template<typename... Args>
-        static void Error(Args&&... args) {
-            if (sizeof...(args) == 0) {
-                ClientLogger->error("");
-            }
-            else {
-                ClientLogger->error(BuildMessage(std::forward<Args>(args)...));
-            }
-        }
+		template<typename... Args>
+		static void Error(const std::string& format, Args&&... args) {
+			if (enableClientLog) {
+				if constexpr (sizeof...(args) == 0) {
+					ClientLogger->error(format);
+				}
+				else {
+					ClientLogger->error(fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
+				}
+			}
+		}
 
-        template<typename... Args>
-        static void Trace(Args&&... args) {
-            if (sizeof...(args) == 0) {
-                ClientLogger->trace("");
-            }
-            else {
-                ClientLogger->trace(BuildMessage(std::forward<Args>(args)...));
-            }
-        }
+		template<typename... Args>
+		static void Trace(const std::string& format, Args&&... args) {
+			if (enableClientLog) {
+				if constexpr (sizeof...(args) == 0) {
+					ClientLogger->trace(format);
+				}
+				else {
+					ClientLogger->trace(fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
+				}
+			}
+		}
 
-        template<typename... Args>
-        static void Critical(Args&&... args) {
-            if (sizeof...(args) == 0) {
-                ClientLogger->critical("");
-            }
-            else {
-                ClientLogger->critical(BuildMessage(std::forward<Args>(args)...));
-            }
-        }
+		template<typename... Args>
+		static void Critical(const std::string& format, Args&&... args) {
+			if (enableClientLog) {
+				if constexpr (sizeof...(args) == 0) {
+					ClientLogger->critical(format);
+				}
+				else {
+					ClientLogger->critical(fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
+				}
+			}
+		}
 
-        template<typename... Args>
-        static void CoreLog(Args&&... args) {
-            if (sizeof...(args) == 0) {
-                CoreLogger->info("");
-            }
-            else {
-                CoreLogger->info(BuildMessage(std::forward<Args>(args)...));
-            }
-        }
 
-        template<typename... Args>
-        static void CoreWarning(Args&&... args) {
-            if (sizeof...(args) == 0) {
-                CoreLogger->warn("");
-            }
-            else {
-                CoreLogger->warn(BuildMessage(std::forward<Args>(args)...));
-            }
-        }
+		template<typename... Args>
+		static void CoreLog(const std::string& format, Args&&... args) {
+			if (enableCoreLog) {
+				if constexpr (sizeof...(args) == 0) {
+					CoreLogger->info(format);
+				}
+				else {
+					CoreLogger->info(fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
+				}
+			}
+		}
 
-        template<typename... Args>
-        static void CoreError(Args&&... args) {
-            if (sizeof...(args) == 0) {
-                CoreLogger->error("");
-            }
-            else {
-                CoreLogger->error(BuildMessage(std::forward<Args>(args)...));
-            }
-        }
+		template<typename... Args>
+		static void CoreWarning(const std::string& format, Args&&... args) {
+			if (enableCoreLog) {
+				if constexpr (sizeof...(args) == 0) {
+					CoreLogger->warn(format);
+				}
+				else {
+					CoreLogger->warn(fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
+				}
+			}
+		}
 
-        template<typename... Args>
-        static void CoreTrace(Args&&... args) {
-            if (sizeof...(args) == 0) {
-                CoreLogger->trace("");
-            }
-            else {
-                CoreLogger->trace(BuildMessage(std::forward<Args>(args)...));
-            }
-        }
+		template<typename... Args>
+		static void CoreError(const std::string& format, Args&&... args) {
+			if (enableCoreLog) {
+				if constexpr (sizeof...(args) == 0) {
+					CoreLogger->error(format);
+				}
+				else {
+					CoreLogger->error(fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
+				}
+			}
+		}
 
-        template<typename... Args>
-        static void CoreCritical(Args&&... args) {
-            if (sizeof...(args) == 0) {
-                CoreLogger->critical("");
-            }
-            else {
-                CoreLogger->critical(BuildMessage(std::forward<Args>(args)...));
-            }
-        }
+		template<typename... Args>
+		static void CoreTrace(const std::string& format, Args&&... args) {
+			if (enableCoreLog) {
+				if constexpr (sizeof...(args) == 0) {
+					CoreLogger->trace(format);
+				}
+				else {
+					CoreLogger->trace(fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
+				}
+			}
+		}
+
+		template<typename... Args>
+		static void CoreCritical(const std::string& format, Args&&... args) {
+			if (enableCoreLog) {
+				if constexpr (sizeof...(args) == 0) {
+					CoreLogger->critical(format);
+				}
+				else {
+					CoreLogger->critical(fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
+				}
+			}
+		}
 
 	private:
 

@@ -6,11 +6,15 @@
 #include "Aurora/Events/ApplicationEvent.h"
 #include "Aurora/Events/MouseEvent.h"
 #include "Aurora/Events/KeyEvent.h"
+
 #include "Platform/Renderer/DirectX/DirectXContext.h"
 
 #include "WinDef.h"
 #include "windowsx.h"
 #include <stdio.h>
+
+
+
 
 namespace Aurora
 {
@@ -41,10 +45,14 @@ namespace Aurora
 			DispatchMessage(&msg);
 		}
 
-
-		context->BeginScene(1.0f, 0.0f, 0.f, 1.0f);
-
 		context->SwapBuffer();
+	}
+
+	void WindowsWindow::OnNewFrame()
+	{
+
+		context->ClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
@@ -187,6 +195,9 @@ namespace Aurora
 				unsigned int width = LOWORD(lParam);
 				unsigned int height = HIWORD(lParam);
 				
+				this->width = width;
+				this->height = height;
+
 				if (eventCallback)
 				{
 					WindowResizeEvent event = { width, height };
@@ -319,8 +330,10 @@ namespace Aurora
 
 	}
 
+
 	LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
+
 		WindowsWindow* window = nullptr;
 		if (uMsg == WM_NCCREATE)
 		{
@@ -333,6 +346,16 @@ namespace Aurora
 		else
 		{
 			window = (WindowsWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+		}
+
+
+		if (ImGui::GetCurrentContext() != nullptr)
+		{
+			if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
+			{
+				Debug::CoreWarning("ImGui_ImplWin32_WndProcHandler");
+				return true;
+			}
 		}
 
 		if (window)
@@ -354,4 +377,3 @@ namespace Aurora
 		return window;
 	}
 }
-

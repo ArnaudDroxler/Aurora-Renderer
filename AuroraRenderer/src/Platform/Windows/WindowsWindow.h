@@ -5,6 +5,10 @@
 #include "Aurora/Core/Window.h"
 #include "Platform/Renderer/DirectX/DirectXContext.h"
 
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_dx11.h"
+
 namespace Aurora
 {
 	class WindowsWindow : public Window
@@ -15,6 +19,7 @@ namespace Aurora
 		virtual ~WindowsWindow();
 
 		virtual void OnUpdate() override;
+		virtual void OnNewFrame() override;
 
 		inline unsigned int GetWidth() const override { return width; };
 		inline unsigned int GetHeight() const override { return  height; };
@@ -28,6 +33,8 @@ namespace Aurora
 
 		inline virtual void* GetNativeWindow() const { return hwnd; }
 		void SetNativeWindow(HWND hwnd);
+
+		inline DirectXContext* GetContext() { return context; }
 
 		LRESULT CALLBACK MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -57,3 +64,4 @@ namespace Aurora
 
 }
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
