@@ -4,11 +4,37 @@
 
 using namespace Aurora;
 
-
-class ExempleLayer : public Layer
+class DemoLayer : public Layer
 {
 public:
-	ExempleLayer() : Layer("Exemple")
+    DemoLayer() : Layer("Demo")
+    {
+
+    }
+
+    void OnEvent(Event& event)
+    {
+
+    }
+
+    void OnImGUIRender()
+    {
+        ImGui::ShowDemoWindow();
+    }
+    void OnUpdate()
+    {
+
+    }
+
+private:
+    bool* p_open;
+};
+
+
+class OverlayLayer : public Layer
+{
+public:
+	OverlayLayer() : Layer("Overlay")
 	{
 
 	}
@@ -83,7 +109,8 @@ public:
 	SandboxApp()
 	{
 		Debug::Log("Hello from SandboxApp");
-		PushLayer(new ExempleLayer());
+		PushLayer(new OverlayLayer());
+        PushLayer(new DemoLayer());
 	}
 
 	~SandboxApp()
