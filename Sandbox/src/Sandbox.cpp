@@ -72,6 +72,8 @@ public:
         ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
         if (ImGui::Begin("Example: Simple overlay", p_open, window_flags))
         {
+
+            ImGui::Text("Framerate : %.1f FPS", Time::FPS());
             if (ImGui::IsMousePosValid())
                 ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
             else
@@ -117,6 +119,8 @@ public:
 	{
 
 	}
+
+
 
 };
 

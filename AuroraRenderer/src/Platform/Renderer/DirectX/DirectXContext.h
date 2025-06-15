@@ -27,6 +27,8 @@ namespace Aurora
 		bool InitDirectX(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool fullscreen, float screenDepth, float screenNear);
 		void Shutdown();
 
+		void SetVSync(bool enabled);
+
 		void OnResize(unsigned int width, unsigned int height);
 
 		void ClearColor(float red, float green, float blue, float alpha);

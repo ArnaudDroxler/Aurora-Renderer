@@ -11,8 +11,10 @@ namespace Aurora
 
 	Application::Application()
 	{
-		Debug::Init();
 
+		Time::Init();
+
+		Debug::Init();
 		Debug::CoreLog("Aurora Renderer Init");
 
 		Instance = this;
@@ -54,6 +56,8 @@ namespace Aurora
 
 		while (running)
 		{
+			Time::Update();
+
 			window->OnNewFrame();
 
 			for (Layer* layer : layerStack)

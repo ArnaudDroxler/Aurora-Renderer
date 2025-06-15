@@ -113,6 +113,7 @@
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\aurorapch.h" />
+    <ClInclude Include="src\Aurora\Core\Time.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Aurora\Core\Application.cpp" />
@@ -126,6 +127,7 @@
     <ClCompile Include="src\aurorapch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Aurora\Core\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="external\imgui\ImGui.vcxproj">

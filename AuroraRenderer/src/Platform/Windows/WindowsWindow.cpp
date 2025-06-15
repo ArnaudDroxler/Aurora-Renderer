@@ -13,9 +13,6 @@
 #include "windowsx.h"
 #include <stdio.h>
 
-
-
-
 namespace Aurora
 {
 
@@ -58,6 +55,7 @@ namespace Aurora
 	void WindowsWindow::SetVSync(bool enabled)
 	{
 		vSync = enabled;
+		context->SetVSync(vSync);
 	}
 
 	void WindowsWindow::SetEventCallback(const EventCallback& callback)
@@ -297,18 +295,23 @@ namespace Aurora
 			this       
 		);
 
+		
+
+
+		ZeroMemory(&msg, sizeof(MSG));
+
+		vSync = false;
+
+		Debug::CoreCritical("width height: {0} {1}", width, height);
+
+		context = new DirectXContext();
+		context->InitDirectX(width, height, vSync, hwnd, fullscreen, 1000.0f, 0.1f);
+
 		ShowWindow(hwnd, SW_SHOW);
 		SetForegroundWindow(hwnd);
 		SetFocus(hwnd);
 
 		ShowCursor(true);
-
-
-		ZeroMemory(&msg, sizeof(MSG));
-
-		context = new DirectXContext();
-		context->InitDirectX(width, height, vSync, hwnd, fullscreen, 1000.0f, 0.1f);
-
 	}
 
 	void WindowsWindow::Shutdown()

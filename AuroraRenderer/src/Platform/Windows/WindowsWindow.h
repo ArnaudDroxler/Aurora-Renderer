@@ -52,7 +52,7 @@ namespace Aurora
 		std::string title;
 		unsigned int width, height;
 		unsigned int posX, posY;
-		bool vSync;
+		bool vSync = true;
 		bool fullscreen;
 
 		EventCallback eventCallback;

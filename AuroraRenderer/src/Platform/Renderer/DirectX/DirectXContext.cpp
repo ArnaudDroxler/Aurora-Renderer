@@ -28,26 +28,20 @@ namespace Aurora
 
 	bool DirectXContext::InitDirectX(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool fullscreen, float screenDepth, float screenNear)
 	{
-		HRESULT result;
+
+		vsyncEnabled = vsync;
+		
 		IDXGIFactory* factory;
 		IDXGIAdapter* adapter;
 		IDXGIOutput* adapterOutput;
-		unsigned int numModes, i, numerator, denominator = 0;
-		unsigned long long stringLength;
-		DXGI_MODE_DESC* displayModeList;
 		DXGI_ADAPTER_DESC adapterDesc;
+
+		unsigned int numModes, i, numerator, denominator;
+		unsigned long long stringLength;
+
 		int error;
 
-		D3D_FEATURE_LEVEL featureLevel;
-		ID3D11Texture2D* backBufferPtr;
-		D3D11_TEXTURE2D_DESC depthBufferDesc;
-		D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-		D3D11_RASTERIZER_DESC rasterDesc;
-		float fieldOfView, screenAspect;
-
-		vsyncEnabled = vsync;
-
+		HRESULT result;
 		result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 		if (FAILED(result))
 		{
@@ -72,7 +66,7 @@ namespace Aurora
 			return false;
 		}
 
-		displayModeList = new DXGI_MODE_DESC[numModes];
+		DXGI_MODE_DESC* displayModeList = new DXGI_MODE_DESC[numModes];
 		if (!displayModeList)
 		{
 			return false;
@@ -84,10 +78,11 @@ namespace Aurora
 			return false;
 		}
 
-		numerator = 0;
-		denominator = 1;
+		Debug::CoreCritical("screenWidth screenHeight: {0} {1}", screenWidth, screenHeight);
+
 		for (i = 0; i < numModes; i++)
 		{
+			Debug::CoreCritical("Display Mode {0} {1} {2} {3} {4}", displayModeList[i].Width, displayModeList[i].Height, displayModeList[i].RefreshRate.Numerator, displayModeList[i].RefreshRate.Denominator, displayModeList[i].RefreshRate.Numerator/displayModeList[i].RefreshRate.Denominator);
 			if (displayModeList[i].Width == (unsigned int)screenWidth)
 			{
 				if (displayModeList[i].Height == (unsigned int)screenHeight)
@@ -125,6 +120,8 @@ namespace Aurora
 		factory->Release();
 		factory = nullptr;
 
+
+
 		DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
 
 		swapChainDesc.BufferCount = 1;
@@ -134,10 +131,12 @@ namespace Aurora
 
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
+		Debug::CoreLog("RefreshRate {0} {1} {2}", numerator, denominator, numerator/ denominator);
+
 		if (vsyncEnabled)
 		{
-			swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
-			swapChainDesc.BufferDesc.RefreshRate.Denominator = denominator;
+			swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
+			swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 		}
 		else
 		{
@@ -168,7 +167,7 @@ namespace Aurora
 
 		swapChainDesc.Flags = 0;
 
-		featureLevel = D3D_FEATURE_LEVEL_11_1;
+		D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
 
 		result = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, &featureLevel, 1,
 			D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &device, nullptr, &deviceContext);
@@ -176,6 +175,8 @@ namespace Aurora
 		{
 			return false;
 		}
+
+		ID3D11Texture2D* backBufferPtr;
 
 		result = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
 		if (FAILED(result))
@@ -192,7 +193,7 @@ namespace Aurora
 		backBufferPtr->Release();
 		backBufferPtr = nullptr;
 
-		ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
+		D3D11_TEXTURE2D_DESC depthBufferDesc = {};
 
 		depthBufferDesc.Width = screenWidth;
 		depthBufferDesc.Height = screenHeight;
@@ -212,7 +213,8 @@ namespace Aurora
 			return false;
 		}
 
-		ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+
+		D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
 
 		depthStencilDesc.DepthEnable = true;
 		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -240,7 +242,7 @@ namespace Aurora
 
 		deviceContext->OMSetDepthStencilState(depthStencilState, 1);
 
-		ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
 
 		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -253,6 +255,9 @@ namespace Aurora
 		}
 
 		deviceContext->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+
+
+		D3D11_RASTERIZER_DESC rasterDesc = {};
 
 		rasterDesc.AntialiasedLineEnable = false;
 		rasterDesc.CullMode = D3D11_CULL_BACK;
@@ -281,6 +286,9 @@ namespace Aurora
 		viewport.TopLeftY = 0.0f;
 
 		deviceContext->RSSetViewports(1, &viewport);
+
+
+		float fieldOfView, screenAspect;
 
 		fieldOfView = 3.141592654f / 4.0f;
 		screenAspect = (float)screenWidth / (float)screenHeight;
@@ -350,16 +358,20 @@ namespace Aurora
 		}
 	}
 
+	void DirectXContext::SetVSync(bool enabled)
+	{
+		vsyncEnabled = enabled;
+	}
+
 	void DirectXContext::OnResize(unsigned int width, unsigned int height)
 	{
 		if (deviceContext && swapChain && renderTargetView)
 		{
-			// Libérez les ressources existantes
+
 			deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 			renderTargetView->Release();
 			renderTargetView = nullptr;
 
-			// Redimensionnez le swap chain
 			HRESULT hr = swapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
 			if (FAILED(hr))
 			{
@@ -367,7 +379,6 @@ namespace Aurora
 				return;
 			}
 
-			// Recréez le render target view
 			ID3D11Texture2D* backBuffer = nullptr;
 			hr = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
 			if (SUCCEEDED(hr))
@@ -376,7 +387,6 @@ namespace Aurora
 				backBuffer->Release();
 			}
 
-			// Mettez à jour le viewport
 			D3D11_VIEWPORT viewport = {};
 			viewport.Width = (float)width;
 			viewport.Height = (float)height;
