@@ -21,7 +21,8 @@ namespace Aurora
 
 		window = std::unique_ptr<Window>(Window::Create());
 		window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
-
+		window->SetWindowVisibility(true);
+		window->SetCursorVisibility(true);
 
 		imGuiLayer = new ImGuiLayer();
 		PushOverlay(imGuiLayer);
@@ -34,19 +35,23 @@ namespace Aurora
 
 	}
 
-	void Application::OnEvent(Event& e)
+	void Application::OnEvent(Event& event)
 	{
-		Debug::CoreLog(e.ToString());
+		if (event.GetName() != "MouseMoved")
+		{
+			Debug::CoreLog(event.ToString());
+		}
+	
 
-		EventDispatcher dispatcher(e);
+		EventDispatcher dispatcher(event);
 		dispatcher.Dispatch<WindowCloseEvent>(std::bind(&Application::OnWindowClose, this, std::placeholders::_1));
 		dispatcher.Dispatch<WindowResizeEvent>(std::bind(&Application::OnWindowResize, this, std::placeholders::_1));
 
 		for (auto it = layerStack.end(); it != layerStack.begin(); )
 		{
 			--it;
-			(*it)->OnEvent(e);
-			if (e.Handled)
+			(*it)->OnEvent(event);
+			if (event.Handled)
 				break;
 		}
 	}
@@ -62,6 +67,7 @@ namespace Aurora
 
 			for (Layer* layer : layerStack)
 				layer->OnUpdate();
+
 
 			imGuiLayer->Begin();
 			for (Layer* layer : layerStack)
@@ -103,20 +109,6 @@ namespace Aurora
 		}
 
 		minimized = false;
-
-		WindowsWindow* windowsWindow = dynamic_cast<WindowsWindow*>(window.get());
-		if (windowsWindow && windowsWindow->GetContext())
-		{
-			windowsWindow->GetContext()->OnResize(event.GetWidth(), event.GetHeight());
-		}
-
-		if (imGuiLayer && ImGui::GetCurrentContext())
-		{
-			ImGuiIO& io = ImGui::GetIO();
-			io.DisplaySize = ImVec2((float)event.GetWidth(), (float)event.GetHeight());
-
-			Debug::CoreLog("ImGui DisplaySize upted {0} {1} ", io.DisplaySize.x, io.DisplaySize.y);
-		}
 
 		return false;
 	}

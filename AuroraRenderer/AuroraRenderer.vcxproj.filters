@@ -33,7 +33,7 @@
     <ClInclude Include="src\Aurora\Core\EntryPoint.h">
       <Filter>Aurora\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Aurora\Core\ImGuiLayer.h">
+    <ClInclude Include="src\Aurora\ImGui\ImGuiLayer.h">
       <Filter>Aurora\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Aurora\Core\Input.h">
@@ -86,7 +86,7 @@
     <ClCompile Include="src\Aurora\Core\Debug.cpp">
       <Filter>Aurora\Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Aurora\Core\ImGuiLayer.cpp">
+    <ClCompile Include="src\Aurora\ImGui\ImGuiLayer.cpp">
       <Filter>Aurora\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Aurora\Core\Layer.cpp">

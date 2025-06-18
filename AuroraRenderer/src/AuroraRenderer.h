@@ -7,8 +7,9 @@
 #include "Aurora/Core/Layer.h"
 #include "Aurora/Core/LayerStack.h"
 #include "Aurora/Core/Time.h"
+#include "Aurora/Core/Window.h"
 
-#include "Aurora/Core/ImGuiLayer.h"
+#include "Aurora/ImGui/ImGuiLayer.h"
 
 
 

@@ -2,6 +2,7 @@
 
 #include "aurorapch.h"
 #include "Platform/Renderer/GraphicContext.h"
+#include "AuroraRenderer.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -15,6 +16,8 @@ using namespace DirectX;
 
 namespace Aurora 
 {
+
+	
 	class DirectXContext : public GraphicContext
 	{
 	public:
@@ -28,11 +31,20 @@ namespace Aurora
 		void Shutdown();
 
 		void SetVSync(bool enabled);
+		bool SetFullscreen(bool fullscreen);
+
+		void SetResolutionAndRefreshRate(DisplayMode displayMode);
 
 		void OnResize(unsigned int width, unsigned int height);
 
 		void ClearColor(float red, float green, float blue, float alpha);
 		void SwapBuffer();
+
+
+
+		std::vector<DisplayMode> GetDisplayModes();
+
+		DisplayMode GetCurrentDisplayMode();
 
 		ID3D11Device* GetDevice();
 		ID3D11DeviceContext* GetDeviceContext();
@@ -41,19 +53,23 @@ namespace Aurora
 		void GetWorldMatrix(XMMATRIX&);
 		void GetOrthoMatrix(XMMATRIX&);
 
-		void GetVideoCardInfo(char*, int&);
-
 		void SetBackBufferRenderTarget();
 		void ResetViewport();
 
 	private:
 
-		bool vsyncEnabled;
+
+		bool vSync;
+		bool fullscreen;
 
 		int videoCardMemory;
 		char videoCardDescription[128];
 
 		IDXGISwapChain* swapChain;
+
+		IDXGIFactory* factory;
+		IDXGIAdapter* adapter;
+		IDXGIOutput* output;
 
 		ID3D11Device* device;
 		ID3D11DeviceContext* deviceContext;

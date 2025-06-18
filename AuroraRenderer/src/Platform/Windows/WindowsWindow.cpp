@@ -12,6 +12,7 @@
 #include "WinDef.h"
 #include "windowsx.h"
 #include <stdio.h>
+#include <algorithm>
 
 namespace Aurora
 {
@@ -33,6 +34,34 @@ namespace Aurora
 		Shutdown();
 	}
 
+	void WindowsWindow::SetWindowVisibility(bool visibility)
+	{
+		if (visibility)
+		{
+			ShowWindow(hwnd, SW_SHOW);
+			SetForegroundWindow(hwnd);
+		}
+		else
+		{
+			ShowWindow(hwnd, SW_HIDE);
+			
+		}
+	}
+
+	void WindowsWindow::SetCursorVisibility(bool visibility)
+	{
+		if (visibility)
+		{
+			ShowCursor(true);
+
+			SetFocus(hwnd);
+		}
+		else
+		{
+			ShowCursor(false);
+		}
+	}
+
 	void WindowsWindow::OnUpdate()
 	{
 
@@ -52,10 +81,98 @@ namespace Aurora
 
 	}
 
+	void WindowsWindow::SetFullScreen(bool fullscreen)
+	{
+		this->fullscreen = fullscreen;
+
+		context->SetFullscreen(fullscreen);
+	}
+
 	void WindowsWindow::SetVSync(bool enabled)
 	{
 		vSync = enabled;
 		context->SetVSync(vSync);
+	}
+
+	void WindowsWindow::SetWindowMode(WindowMode mode)
+	{
+		windowMode = mode;
+
+		switch (mode)
+		{
+		case WindowMode::Windowed:
+			ChangeDisplaySettings(nullptr, 0); // Reset exclusive mode
+			SetWindowLong(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+			SetWindowPos(hwnd, nullptr, posX, posY, width, height, SWP_FRAMECHANGED | SWP_NOZORDER);
+			break;
+
+		case WindowMode::BorderlessFullscreen:
+		{
+			ChangeDisplaySettings(nullptr, 0); // Assure qu'on quitte l'exclusif
+			LONG style = GetWindowLong(hwnd, GWL_STYLE);
+			style &= ~(WS_OVERLAPPEDWINDOW);
+			SetWindowLong(hwnd, GWL_STYLE, style);
+			int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+			int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+			SetWindowPos(hwnd, HWND_TOP, 0, 0, screenWidth, screenHeight, SWP_FRAMECHANGED | SWP_NOZORDER);
+		} break;
+
+		case WindowMode::ExclusiveFullscreen:
+		{
+			DisplayMode mode = GetCurrentDisplayMode();
+			DEVMODE dm = {};
+			dm.dmSize = sizeof(DEVMODE);
+			dm.dmPelsWidth = mode.width;
+			dm.dmPelsHeight = mode.height;
+			dm.dmBitsPerPel = 32;
+			dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+
+			ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
+			SetWindowLong(hwnd, GWL_STYLE, WS_POPUP);
+			SetWindowPos(hwnd, HWND_TOP, 0, 0, mode.width, mode.height, SWP_FRAMECHANGED | SWP_NOZORDER);
+
+			context->SetFullscreen(true);
+		} break;
+		}
+
+		SetWindowVisibility(true);
+	}
+
+	void WindowsWindow::SetResolutionAndRefreshRate(DisplayMode displayMode)
+	{
+		Debug::CoreLog("WindowsWindow::SetResolutionAndRefreshRate Setting resolution to {0}x{1} @ {2}Hz", displayMode.width, displayMode.height, displayMode.GetRefreshRate());
+
+		Debug::CoreLog("WindowsWindow::SetResolutionAndRefreshRate Old position: ({0}, {1})", posX, posY);
+
+		context->SetResolutionAndRefreshRate(displayMode);
+
+		if (windowMode == WindowMode::Windowed)
+		{
+			int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+			int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+			RECT rect = { 0, 0, (long)displayMode.width, (long)displayMode.height };
+
+			AdjustWindowRectEx(&rect, WS_OVERLAPPEDWINDOW, FALSE, 0);
+
+			int adjustedWidth = rect.right - rect.left;
+			int adjustedHeight = rect.bottom - rect.top;
+
+			posX = (screenWidth - adjustedWidth) / 2;
+			posY = (screenHeight - adjustedHeight) / 2;
+
+			Debug::CoreLog("WindowsWindow::SetResolutionAndRefreshRate Adjusted position: ({0}, {1})", posX, posY);
+
+			SetWindowPos(hwnd,
+				nullptr,
+				posX, posY,
+				adjustedWidth,
+				adjustedHeight,
+				SWP_NOZORDER);
+		}
+	
+
+
 	}
 
 	void WindowsWindow::SetEventCallback(const EventCallback& callback)
@@ -63,9 +180,78 @@ namespace Aurora
 		eventCallback = callback;
 	}
 
+	DisplayMode WindowsWindow::GetCurrentDisplayMode() const
+	{
+		return context->GetCurrentDisplayMode();
+	}
+
 	void WindowsWindow::SetNativeWindow(HWND hwnd)
 	{
 		this->hwnd = hwnd;
+	}
+
+	std::vector<std::pair<unsigned int, unsigned int>> WindowsWindow::GetResolutions() const
+	{
+		std::vector<std::pair<UINT, UINT>> resolutions;
+
+		for (const auto& mode : displayModes)
+		{
+			std::pair<UINT, UINT> res = { mode.width, mode.height };
+
+			bool exists = false;
+			for (const auto& resolution : resolutions)
+			{
+				if (resolution.first == res.first && resolution.second == res.second)
+				{
+					exists = true;
+					break;
+				}
+			}
+
+			if (!exists)
+			{
+				resolutions.push_back(res);
+			}
+		}
+
+		return resolutions;
+	}
+
+	std::vector< std::pair<unsigned int, unsigned int>> WindowsWindow::GetRefreshRatesForResolution(unsigned int width, unsigned int height) const
+	{
+		std::vector<std::pair<unsigned int, unsigned int>> refreshRates;
+
+		for (const auto& mode : displayModes)
+		{
+			if (mode.width == width && mode.height == height)
+			{
+				std::pair<unsigned int, unsigned int> refreshRate = {mode.refreshRateNumerator, mode.refreshRateDenominator };
+
+				bool exists = false;
+				for (auto rRate : refreshRates)
+				{
+					if (rRate.first == refreshRate.first && rRate.second == refreshRate.second)
+					{
+						exists = true;
+						break;
+					}
+				}
+
+				if (!exists)
+				{
+					refreshRates.push_back(refreshRate);
+				}
+			}
+		}
+
+		std::sort(refreshRates.begin(), refreshRates.end(),
+			[](const std::pair<unsigned int, unsigned int>& a, const std::pair<unsigned int, unsigned int>& b) {
+				float freqA = (float)a.first / a.second;
+				float freqB = (float)b.first / b.second;
+				return freqA < freqB;
+			});
+
+		return refreshRates;
 	}
 
 	LRESULT CALLBACK WindowsWindow::MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -146,6 +332,7 @@ namespace Aurora
 			case WM_RBUTTONUP:
 			{
 				MouseButtonReleasedEvent event = { (int)KeyCode::MouseRight };
+				eventCallback(event);
 			}
 			break;
 
@@ -162,6 +349,7 @@ namespace Aurora
 			case WM_MBUTTONUP:
 			{
 				MouseButtonReleasedEvent event = { (int)KeyCode::MouseMiddle };
+				eventCallback(event);
 			}
 			break;
 
@@ -171,6 +359,7 @@ namespace Aurora
 				float deltaX = GET_WHEEL_DELTA_WPARAM(wParam);
 
 				MouseScrolledEvent event = { (float)deltaX, (float)deltaY };
+				eventCallback(event);
 			}
 			break;
 
@@ -196,12 +385,11 @@ namespace Aurora
 				this->width = width;
 				this->height = height;
 
-				if (eventCallback)
-				{
-					WindowResizeEvent event = { width, height };
-					eventCallback(event);
-				}
+				this->context->OnResize(width, height);
 
+				WindowResizeEvent event = { width, height };
+				eventCallback(event);
+			
 			}
 			break;
 
@@ -271,47 +459,63 @@ namespace Aurora
 			posX = posY = 0;
 
 			windowedStyle = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+
+			hwnd = CreateWindowEx(
+				0,
+				windowsName,
+				windowsName,
+				windowedStyle,
+				posX, posY, width, height,
+				nullptr,
+				nullptr,
+				hinstance,
+				this
+			);
+
 		}
 		else
 		{
 		
-			posX = (screenWidth - width) / 2;
-			posY = (screenHeight - height) / 2;
-
+			RECT rect = { 0, 0, (LONG)width, (LONG)height };
 			windowedStyle = WS_OVERLAPPEDWINDOW;
+
+			AdjustWindowRectEx(&rect, windowedStyle, FALSE, 0);
+
+			int adjustedWidth = rect.right - rect.left;
+			int adjustedHeight = rect.bottom - rect.top;
+
+			posX = (screenWidth - adjustedWidth) / 2;
+			posY = (screenHeight - adjustedHeight) / 2;
+
+			hwnd = CreateWindowEx(
+				0,
+				windowsName,
+				windowsName,
+				windowedStyle,
+				posX, posY, adjustedWidth, adjustedHeight,  
+				nullptr,
+				nullptr,
+				hinstance,
+				this
+			);
 
 		}
 
-		// Create the window with the screen settings and get the handle to it.
-		hwnd = CreateWindowEx(
-			0,                              
-			windowsName,
-			windowsName,
-			windowedStyle,
-			posX, posY, width, height,
-			nullptr,       
-			nullptr,       
-			hinstance,  
-			this       
-		);
 
-		
-
-
-		ZeroMemory(&msg, sizeof(MSG));
+		msg = {};
 
 		vSync = false;
-
-		Debug::CoreCritical("width height: {0} {1}", width, height);
 
 		context = new DirectXContext();
 		context->InitDirectX(width, height, vSync, hwnd, fullscreen, 1000.0f, 0.1f);
 
-		ShowWindow(hwnd, SW_SHOW);
-		SetForegroundWindow(hwnd);
-		SetFocus(hwnd);
+		displayModes = context->GetDisplayModes();
 
-		ShowCursor(true);
+		for (const auto& modes : displayModes)
+		{
+			Debug::Log("Display Mode: " + modes.ToString());
+		}
+
 	}
 
 	void WindowsWindow::Shutdown()

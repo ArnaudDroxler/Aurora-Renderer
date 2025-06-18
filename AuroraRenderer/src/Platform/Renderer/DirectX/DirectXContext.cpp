@@ -1,5 +1,7 @@
 #include "aurorapch.h"
 #include "DirectXContext.h"
+#include <AuroraRenderer.h>
+#include <dwmapi.h>
 
 
 namespace Aurora
@@ -24,25 +26,13 @@ namespace Aurora
 
 	void DirectXContext::Init()
 	{
+
 	}
 
-	bool DirectXContext::InitDirectX(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool fullscreen, float screenDepth, float screenNear)
+	bool DirectXContext::InitDirectX(int screenWidth, int screenHeight, bool vSync, HWND hwnd, bool fullscreen, float screenDepth, float screenNear)
 	{
 
-		vsyncEnabled = vsync;
-		
-		IDXGIFactory* factory;
-		IDXGIAdapter* adapter;
-		IDXGIOutput* adapterOutput;
-		DXGI_ADAPTER_DESC adapterDesc;
-
-		unsigned int numModes, i, numerator, denominator;
-		unsigned long long stringLength;
-
-		int error;
-
-		HRESULT result;
-		result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
+		HRESULT result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 		if (FAILED(result))
 		{
 			return false;
@@ -54,72 +44,11 @@ namespace Aurora
 			return false;
 		}
 
-		result = adapter->EnumOutputs(0, &adapterOutput);
+		result = adapter->EnumOutputs(0, &output);
 		if (FAILED(result))
 		{
 			return false;
 		}
-
-		result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, nullptr);
-		if (FAILED(result))
-		{
-			return false;
-		}
-
-		DXGI_MODE_DESC* displayModeList = new DXGI_MODE_DESC[numModes];
-		if (!displayModeList)
-		{
-			return false;
-		}
-
-		result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
-		if (FAILED(result))
-		{
-			return false;
-		}
-
-		Debug::CoreCritical("screenWidth screenHeight: {0} {1}", screenWidth, screenHeight);
-
-		for (i = 0; i < numModes; i++)
-		{
-			Debug::CoreCritical("Display Mode {0} {1} {2} {3} {4}", displayModeList[i].Width, displayModeList[i].Height, displayModeList[i].RefreshRate.Numerator, displayModeList[i].RefreshRate.Denominator, displayModeList[i].RefreshRate.Numerator/displayModeList[i].RefreshRate.Denominator);
-			if (displayModeList[i].Width == (unsigned int)screenWidth)
-			{
-				if (displayModeList[i].Height == (unsigned int)screenHeight)
-				{
-
-					numerator = displayModeList[i].RefreshRate.Numerator;
-					denominator = displayModeList[i].RefreshRate.Denominator;
-				}
-			}
-		}
-
-		result = adapter->GetDesc(&adapterDesc);
-		if (FAILED(result))
-		{
-			return false;
-		}
-
-		videoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
-
-		error = wcstombs_s(&stringLength, videoCardDescription, 128, adapterDesc.Description, 128);
-		if (error != 0)
-		{
-			return false;
-		}
-
-		delete[] displayModeList;
-		displayModeList = 0;
-
-		adapterOutput->Release();
-		adapterOutput = nullptr;
-
-		adapter->Release();
-		adapter = nullptr;
-
-		factory->Release();
-		factory = nullptr;
-
 
 
 		DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
@@ -131,9 +60,7 @@ namespace Aurora
 
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-		Debug::CoreLog("RefreshRate {0} {1} {2}", numerator, denominator, numerator/ denominator);
-
-		if (vsyncEnabled)
+		if (vSync)
 		{
 			swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 			swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
@@ -151,19 +78,22 @@ namespace Aurora
 		swapChainDesc.SampleDesc.Count = 1;
 		swapChainDesc.SampleDesc.Quality = 0;
 
-		if (fullscreen)
+		/*if (fullscreen)
 		{
 			swapChainDesc.Windowed = false;
 		}
 		else
 		{
 			swapChainDesc.Windowed = true;
-		}
+		}*/
+
+		swapChainDesc.Windowed = true;
 
 		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+		//swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 		swapChainDesc.Flags = 0;
 
@@ -287,6 +217,8 @@ namespace Aurora
 
 		deviceContext->RSSetViewports(1, &viewport);
 
+		SetFullscreen(fullscreen);
+		SetVSync(vSync);
 
 		float fieldOfView, screenAspect;
 
@@ -307,6 +239,24 @@ namespace Aurora
 		if (swapChain)
 		{
 			swapChain->SetFullscreenState(false, nullptr);
+		}
+
+		if (output)
+		{
+			output->Release();
+			output = nullptr;
+		}
+
+		if (adapter)
+		{
+			adapter->Release();
+			adapter = nullptr;
+		}
+
+		if (factory)
+		{
+			factory->Release();
+			factory = nullptr;
 		}
 
 		if (rasterState)
@@ -356,15 +306,18 @@ namespace Aurora
 			swapChain->Release();
 			swapChain = nullptr;
 		}
+
 	}
 
 	void DirectXContext::SetVSync(bool enabled)
 	{
-		vsyncEnabled = enabled;
+		vSync = enabled;
 	}
 
 	void DirectXContext::OnResize(unsigned int width, unsigned int height)
 	{
+		Debug::CoreLog(" DirectXContext::OnResize {0} {1}", width , height);
+
 		if (deviceContext && swapChain && renderTargetView)
 		{
 
@@ -419,7 +372,7 @@ namespace Aurora
 
 	void DirectXContext::SwapBuffer()
 	{
-		if (vsyncEnabled)
+		if (vSync)
 		{
 			swapChain->Present(1, 0);
 		}
@@ -429,6 +382,116 @@ namespace Aurora
 		}
 
 		return;
+	}
+
+	std::vector<DisplayMode> DirectXContext::GetDisplayModes()
+	{
+		std::vector<DisplayMode> displayModes = {};
+
+		unsigned int numModes = 0;
+		unsigned long long stringLength;
+
+		int error;
+
+		HRESULT result;
+		result = output->GetDisplayModeList(DXGI_FORMAT_B8G8R8A8_UNORM, 0, &numModes, nullptr);
+
+		if (SUCCEEDED(result) && numModes > 0)
+		{
+
+			std::vector<DXGI_MODE_DESC> modes(numModes);
+
+			result = output->GetDisplayModeList(DXGI_FORMAT_B8G8R8A8_UNORM, 0, &numModes, modes.data());
+			if (SUCCEEDED(result))
+			{
+
+				for (const auto& mode : modes)
+				{
+					DisplayMode displayMode;
+					displayMode.width = mode.Width;
+					displayMode.height = mode.Height;
+					displayMode.refreshRateNumerator = mode.RefreshRate.Numerator;
+					displayMode.refreshRateDenominator = mode.RefreshRate.Denominator;
+
+					bool exists = false;
+					for (const auto& existing : displayModes)
+					{
+						if (existing.width == displayMode.width &&
+							existing.height == displayMode.height &&
+							existing.refreshRateNumerator == displayMode.refreshRateNumerator &&
+							existing.refreshRateDenominator == displayMode.refreshRateDenominator)
+						{
+							exists = true;
+							break;
+						}
+					}
+
+					if (!exists)
+					{
+						displayModes.push_back(displayMode);
+					}
+				}
+			}
+		}
+
+
+
+		return displayModes;
+	}
+
+	bool DirectXContext::SetFullscreen(bool fullscreen)
+	{
+		this->fullscreen = fullscreen;
+
+		HRESULT result = swapChain->SetFullscreenState(this->fullscreen, nullptr);
+
+		if (FAILED(result))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	void DirectXContext::SetResolutionAndRefreshRate(DisplayMode displayMode)
+	{
+		Debug::CoreLog("DirectXContext::SetResolutionAndRefreshRate");
+
+		HRESULT result = swapChain->ResizeBuffers(
+			1, 
+			displayMode.width,
+			displayMode.height,
+			DXGI_FORMAT_B8G8R8A8_UNORM,
+			0 
+		);
+
+		DXGI_MODE_DESC modeDesc = {};
+		modeDesc.Width = displayMode.width;
+		modeDesc.Height = displayMode.height;
+		modeDesc.RefreshRate.Numerator = displayMode.refreshRateNumerator;
+		modeDesc.RefreshRate.Denominator = displayMode.refreshRateDenominator;
+		modeDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+
+		result = swapChain->ResizeTarget(&modeDesc);
+
+	}
+
+	DisplayMode DirectXContext::GetCurrentDisplayMode()
+	{
+		DXGI_SWAP_CHAIN_DESC desc = {};
+		DisplayMode current = {};
+
+		auto result = swapChain->GetDesc(&desc);
+
+		if (SUCCEEDED(result))
+		{
+			current.width = desc.BufferDesc.Width;
+			current.height = desc.BufferDesc.Height;
+			current.refreshRateNumerator = desc.BufferDesc.RefreshRate.Numerator;
+			current.refreshRateDenominator = desc.BufferDesc.RefreshRate.Denominator;
+		}
+
+		return current;
 	}
 
 	ID3D11Device* DirectXContext::GetDevice()
@@ -456,13 +519,6 @@ namespace Aurora
 	void DirectXContext::GetOrthoMatrix(XMMATRIX& orthoMatrix)
 	{
 		orthoMatrix = this->orthoMatrix;
-		return;
-	}
-
-	void DirectXContext::GetVideoCardInfo(char* cardName, int& memory)
-	{
-		strcpy_s(cardName, 128, videoCardDescription);
-		memory = videoCardMemory;
 		return;
 	}
 

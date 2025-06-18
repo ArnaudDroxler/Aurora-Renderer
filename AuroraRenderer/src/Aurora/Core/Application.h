@@ -4,7 +4,7 @@
 #include "Aurora/Events/ApplicationEvent.h"
 
 #include "Aurora/Core/LayerStack.h"
-#include "Aurora/Core/ImGuiLayer.h"
+#include "Aurora/ImGui/ImGuiLayer.h"
 
 
 namespace Aurora
@@ -36,9 +36,7 @@ namespace Aurora
 		LayerStack layerStack;
 		ImGuiLayer* imGuiLayer;
 
-
 		static Application* Instance;
-
 
 		bool running;
 		bool minimized;

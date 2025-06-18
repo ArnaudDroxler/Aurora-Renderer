@@ -97,7 +97,7 @@
     <ClInclude Include="src\Aurora\Core\Application.h" />
     <ClInclude Include="src\Aurora\Core\Debug.h" />
     <ClInclude Include="src\Aurora\Core\EntryPoint.h" />
-    <ClInclude Include="src\Aurora\Core\ImGuiLayer.h" />
+    <ClInclude Include="src\Aurora\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Aurora\Core\Input.h" />
     <ClInclude Include="src\Aurora\Core\KeyCode.h" />
     <ClInclude Include="src\Aurora\Core\Layer.h" />
@@ -118,7 +118,7 @@
   <ItemGroup>
     <ClCompile Include="src\Aurora\Core\Application.cpp" />
     <ClCompile Include="src\Aurora\Core\Debug.cpp" />
-    <ClCompile Include="src\Aurora\Core\ImGuiLayer.cpp" />
+    <ClCompile Include="src\Aurora\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Aurora\Core\Layer.cpp" />
     <ClCompile Include="src\Aurora\Core\LayerStack.cpp" />
     <ClCompile Include="src\Platform\Renderer\DirectX\DirectXContext.cpp" />

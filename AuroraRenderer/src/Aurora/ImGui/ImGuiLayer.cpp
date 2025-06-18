@@ -5,12 +5,13 @@
 #include "Aurora/Core/Window.h"
 #include "Platform/Windows/WindowsWindow.h"
 
-#include "imgui.h"
+
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
 
 namespace Aurora
 {
+
 
 	ImGuiLayer::ImGuiLayer() : Layer("Imgui Layer")
 	{
@@ -27,18 +28,22 @@ namespace Aurora
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      
 		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		//ImGui::StyleColorsDark();
 
 
-		ImGui_ImplWin32_Init(Application::Get().GetWindow().GetNativeWindow());
+		Application& app = Application::Get();
 
-		WindowsWindow* windowsWindow = dynamic_cast<WindowsWindow*>(Application::Get().GetWindowPtr());
+		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
+
+		ImGui_ImplWin32_Init(app.GetWindow().GetNativeWindow());
+
+		WindowsWindow* windowsWindow = dynamic_cast<WindowsWindow*>(app.GetWindowPtr());
 		ImGui_ImplDX11_Init(windowsWindow->GetContext()->GetDevice(), windowsWindow->GetContext()->GetDeviceContext());
 
+		
 	}
 
 	void ImGuiLayer::OnDetach()
@@ -50,7 +55,13 @@ namespace Aurora
 
 	void ImGuiLayer::OnImGUIRender()
 	{
-		
+
+	}
+
+	void ImGuiLayer::OnEvent(Event& event)
+	{
+		EventDispatcher dispatcher(event);
+		dispatcher.Dispatch<WindowResizeEvent>(std::bind(&ImGuiLayer::OnWindowResize, this, std::placeholders::_1));
 	}
 
 	void ImGuiLayer::Begin()
@@ -58,17 +69,31 @@ namespace Aurora
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
-	
 	}
 
 	void ImGuiLayer::End()
 	{
+
+
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		ImGui::Render();
 
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	
 
+	}
+
+	bool ImGuiLayer::OnWindowResize(WindowResizeEvent& event)
+	{
+
+		if (ImGui::GetCurrentContext())
+		{
+			ImGuiIO& io = ImGui::GetIO();
+			io.DisplaySize = ImVec2((float)event.GetWidth(), (float)event.GetHeight());
+
+			Debug::CoreLog("ImGuiLaye::OnWindowResize {0} {1} ", io.DisplaySize.x, io.DisplaySize.y);
+		}
+		return false;
 	}
 
 
