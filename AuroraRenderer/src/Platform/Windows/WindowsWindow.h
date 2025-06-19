@@ -29,14 +29,12 @@ namespace Aurora
 		inline unsigned int GetHeight() const override { return  height; };
 		inline std::string GetName() const override { return  title; };
 
-		void SetFullScreen(bool fullscreen) override;
-		inline bool GetFullScreen() const override { return  fullscreen; };
-
 		void SetVSync(bool enabled) override;
-		inline bool IsVSync() const override { return  vSync; };
+		inline bool GetVSync() const override { return  vSync; };
 
 		void SetWindowMode(WindowMode mode);
-	
+		inline WindowMode GetWindowMode() const override { return windowMode; };
+
 		void SetResolutionAndRefreshRate(DisplayMode displayMode);
 
 		void  SetEventCallback(const EventCallback& callback);
@@ -57,7 +55,6 @@ namespace Aurora
 		void Init(const WindowProperty& property);
 		void Shutdown();
 
-		WindowMode windowMode = WindowMode::Windowed;
 
 		LPCTSTR windowsName;
 		HINSTANCE hinstance;
@@ -70,8 +67,9 @@ namespace Aurora
 		std::string title;
 		unsigned int width, height;
 		unsigned int posX, posY;
-		bool vSync = true;
-		bool fullscreen;
+		WindowMode windowMode;
+
+		bool vSync;
 
 		EventCallback eventCallback;
 		

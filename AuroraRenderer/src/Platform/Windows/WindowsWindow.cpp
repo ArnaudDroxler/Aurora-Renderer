@@ -81,13 +81,6 @@ namespace Aurora
 
 	}
 
-	void WindowsWindow::SetFullScreen(bool fullscreen)
-	{
-		this->fullscreen = fullscreen;
-
-		context->SetFullscreen(fullscreen);
-	}
-
 	void WindowsWindow::SetVSync(bool enabled)
 	{
 		vSync = enabled;
@@ -100,43 +93,57 @@ namespace Aurora
 
 		switch (mode)
 		{
-		case WindowMode::Windowed:
-			ChangeDisplaySettings(nullptr, 0); // Reset exclusive mode
-			SetWindowLong(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
-			SetWindowPos(hwnd, nullptr, posX, posY, width, height, SWP_FRAMECHANGED | SWP_NOZORDER);
-			break;
+			case WindowMode::Windowed:
+			{
+				ChangeDisplaySettings(nullptr, 0);
 
-		case WindowMode::BorderlessFullscreen:
-		{
-			ChangeDisplaySettings(nullptr, 0); // Assure qu'on quitte l'exclusif
-			LONG style = GetWindowLong(hwnd, GWL_STYLE);
-			style &= ~(WS_OVERLAPPEDWINDOW);
-			SetWindowLong(hwnd, GWL_STYLE, style);
-			int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-			int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-			SetWindowPos(hwnd, HWND_TOP, 0, 0, screenWidth, screenHeight, SWP_FRAMECHANGED | SWP_NOZORDER);
-		} break;
+				SetWindowLong(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
 
-		case WindowMode::ExclusiveFullscreen:
-		{
-			DisplayMode mode = GetCurrentDisplayMode();
-			DEVMODE dm = {};
-			dm.dmSize = sizeof(DEVMODE);
-			dm.dmPelsWidth = mode.width;
-			dm.dmPelsHeight = mode.height;
-			dm.dmBitsPerPel = 32;
-			dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+				SetWindowPos(hwnd, nullptr, posX, posY, width, height, SWP_FRAMECHANGED | SWP_NOZORDER);
+			}break;
+			case WindowMode::BorderlessFullscreen:
+			{
+				ChangeDisplaySettings(nullptr, 0); 
 
-			ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
-			SetWindowLong(hwnd, GWL_STYLE, WS_POPUP);
-			SetWindowPos(hwnd, HWND_TOP, 0, 0, mode.width, mode.height, SWP_FRAMECHANGED | SWP_NOZORDER);
+				LONG style = GetWindowLong(hwnd, GWL_STYLE);
+				style &= ~(WS_OVERLAPPEDWINDOW);
+				SetWindowLong(hwnd, GWL_STYLE, style);
 
-			context->SetFullscreen(true);
-		} break;
+				int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+				int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+				width = screenWidth;
+				height = screenHeight;
+
+				posX = 0;
+				posY = 0;
+
+				SetWindowPos(hwnd, HWND_TOP, posX, posY, width, height, SWP_FRAMECHANGED | SWP_NOZORDER);
+
+				context->SetFullscreen(true);
+			} break;
+			case WindowMode::ExclusiveFullscreen:
+			{
+				DisplayMode mode = GetCurrentDisplayMode();
+				DEVMODE dm = {};
+				dm.dmSize = sizeof(DEVMODE);
+				dm.dmPelsWidth = mode.width;
+				dm.dmPelsHeight = mode.height;
+				dm.dmBitsPerPel = 32;
+				dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+
+				ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
+				SetWindowLong(hwnd, GWL_STYLE, WS_POPUP);
+
+				SetWindowPos(hwnd, HWND_TOP, 0, 0, mode.width, mode.height, SWP_FRAMECHANGED | SWP_NOZORDER);
+
+				context->SetFullscreen(true);
+			} break;
 		}
 
 		SetWindowVisibility(true);
 	}
+
 
 	void WindowsWindow::SetResolutionAndRefreshRate(DisplayMode displayMode)
 	{
@@ -408,7 +415,7 @@ namespace Aurora
 		title = props.Title;
 		height = props.Height;
 		width = props.Width;
-		fullscreen = props.Fullscreen;
+		windowMode = props.windowMode;
 
 		WNDCLASSEX wc = {};
 
@@ -441,7 +448,7 @@ namespace Aurora
 
 		DWORD windowedStyle = {};
 
-		if (fullscreen)
+		if (windowMode == WindowMode::ExclusiveFullscreen)
 		{
 		
 			memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
@@ -473,7 +480,7 @@ namespace Aurora
 			);
 
 		}
-		else
+		else if (windowMode == WindowMode::Windowed)
 		{
 		
 			RECT rect = { 0, 0, (LONG)width, (LONG)height };
@@ -507,14 +514,9 @@ namespace Aurora
 		vSync = false;
 
 		context = new DirectXContext();
-		context->InitDirectX(width, height, vSync, hwnd, fullscreen, 1000.0f, 0.1f);
+		context->InitDirectX(width, height, vSync, hwnd, windowMode == WindowMode::ExclusiveFullscreen || windowMode == WindowMode::BorderlessFullscreen, 1000.0f, 0.1f);
 
 		displayModes = context->GetDisplayModes();
-
-		for (const auto& modes : displayModes)
-		{
-			Debug::Log("Display Mode: " + modes.ToString());
-		}
 
 	}
 
@@ -524,7 +526,7 @@ namespace Aurora
 		context->Shutdown();
 		context = nullptr;
 
-		if (fullscreen)
+		if (windowMode == WindowMode::ExclusiveFullscreen || windowMode == WindowMode::BorderlessFullscreen)
 		{
 			ChangeDisplaySettings(nullptr, 0);
 		}
@@ -560,7 +562,6 @@ namespace Aurora
 		{
 			if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
 			{
-				Debug::CoreWarning("ImGui_ImplWin32_WndProcHandler");
 				return true;
 			}
 		}
@@ -575,7 +576,6 @@ namespace Aurora
 		}
 
 	}
-
 
 	inline WindowsWindow* GetAppState(HWND hwnd)
 	{

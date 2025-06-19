@@ -18,10 +18,11 @@ namespace Aurora
 		std::string Title;
 		unsigned int Width;
 		unsigned int Height;
-		bool Fullscreen;
+		WindowMode windowMode;
 
-		WindowProperty(const std::string& title = "Aurora Render", unsigned int width = 1920, unsigned int height = 1080, bool fullscreen = false) : Title(title), Width(width), Height(height), Fullscreen(fullscreen)
+		WindowProperty(const std::string& title = "Aurora Render", unsigned int width = 1920, unsigned int height = 1080, WindowMode windowMode = WindowMode::Windowed) : Title(title), Width(width), Height(height), windowMode(windowMode)
 		{
+
 		}
 
 	};
@@ -62,13 +63,11 @@ namespace Aurora
 		virtual unsigned int GetHeight() const = 0;
 		virtual std::string GetName() const = 0;
 
-		virtual void SetFullScreen(bool fullscreen) = 0;
-		virtual bool GetFullScreen() const = 0;
-
 		virtual void SetVSync(bool enabled) = 0;
-		virtual bool IsVSync() const = 0;
+		virtual bool GetVSync() const = 0;
 
 		virtual void SetWindowMode(WindowMode mode) = 0;
+		virtual WindowMode GetWindowMode() const = 0;
 
 		virtual void SetResolutionAndRefreshRate(DisplayMode displayMode) = 0;
 

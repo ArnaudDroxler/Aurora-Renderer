@@ -21,7 +21,8 @@ namespace Aurora
             WindowsWindow* windowsWindow = dynamic_cast<WindowsWindow*>(app.GetWindowPtr());
             windowsWindow->GetResolutions();
 
-            auto displayMode = window->GetCurrentDisplayMode();
+            windowMode = window->GetWindowMode();
+			vSync = window->GetVSync();
 
             resolutions = window->GetResolutions();
 
@@ -37,14 +38,9 @@ namespace Aurora
                 std::copy(str.begin(), str.end(), resolutionDisplay[i]);
                 resolutionDisplay[i][str.size()] = '\0';
 
-                if (resolution.first == displayMode.width && resolution.second == displayMode.height) {
-                    currentResolutionIndex = i;
-                }
-
             }
-            
-            fullscreen = window->GetFullScreen();
-			vSync = window->IsVSync();
+
+            currentResolutionIndex = -1;
         }
 
         void OnEvent(Event& event)
@@ -101,82 +97,127 @@ namespace Aurora
             if (ImGui::CollapsingHeader("Window"))
             {
 
-                auto displayMode = window->GetCurrentDisplayMode();
-
-                refreshRates = window->GetRefreshRatesForResolution(displayMode.width, displayMode.height);
-
-                refreshRatesDisplay = new char* [refreshRates.size()];
-
-                for (int i = 0; i < refreshRates.size(); ++i)
+                auto currentDisplayMode = window->GetCurrentDisplayMode();
+             
+                if (currentResolutionIndex == -1 || displayMode.width != currentDisplayMode.width || displayMode.height != currentDisplayMode.height)
                 {
+                    displayMode = currentDisplayMode;
 
-                    auto refreshRate = refreshRates[i];
-                    std::string str = std::to_string((float)refreshRate.first / refreshRate.second) + " Hz";
+					Debug::CoreCritical("SettingsLayer::OnImGUIRender - Updating resolutions and refresh rates");
+					Debug::CoreCritical("SettingsLayer::OnImGUIRender - Current Display Mode: {0}", displayMode.ToString());
+                    
+					Debug::CoreCritical("Resolution size : {0}", resolutions.size());
 
-                    refreshRatesDisplay[i] = new char[str.size() + 1];
-                    std::copy(str.begin(), str.end(), refreshRatesDisplay[i]);
-                    refreshRatesDisplay[i][str.size()] = '\0';
-
-
-                    if (refreshRate.first == displayMode.refreshRateNumerator && refreshRate.second == displayMode.refreshRateDenominator) {
-                        currentRefreshRateIndex = i;
-                    }
-
-                }
-
-
-				int previousResolutionIndex = currentResolutionIndex;
-
-                ImGui::Text("Resolution :");
-                ImGui::SameLine();
-                ImGui::SetNextItemWidth(200);
-
-                ImGui::Combo("##Resolution", &currentResolutionIndex, resolutionDisplay, resolutions.size());
-                if (currentResolutionIndex != previousResolutionIndex)
-                {
-					window->SetResolutionAndRefreshRate({ resolutions[currentResolutionIndex].first, resolutions[currentResolutionIndex].second, refreshRates[currentRefreshRateIndex].first, refreshRates[currentRefreshRateIndex].second});
-                }
-
-
-                ImGui::Spacing();
-
-                if (ImGui::Checkbox("Vsync", &vSync)) {
-                    window->SetVSync(vSync);
-                }
-
-                if (vSync)
-                {
-                    int previousRefreshRateIndex = currentRefreshRateIndex;
-                    ImGui::Text("Refresh rate :");
-                    ImGui::SameLine();
-                    ImGui::SetNextItemWidth(200);
-                    ImGui::Combo("##Refreshrate", &currentRefreshRateIndex, refreshRatesDisplay, refreshRates.size());
-                    if (currentRefreshRateIndex != previousRefreshRateIndex)
+					currentResolutionIndex = -1;
+                    for (int i = 0; i < resolutions.size(); ++i)
                     {
-                        window->SetResolutionAndRefreshRate({ resolutions[currentResolutionIndex].first, resolutions[currentResolutionIndex].second, refreshRates[currentRefreshRateIndex].first, refreshRates[currentRefreshRateIndex].second });
+                        auto resolution = resolutions[i];
+                        if (resolution.first == displayMode.width && resolution.second == displayMode.height) {
+                            currentResolutionIndex = i;
+                        }
                     }
 
-                }
-              
+					Debug::CoreCritical("Current Resolution Index: {0}", currentResolutionIndex);
 
+                    if (currentResolutionIndex == -1)
+                    {
+                        for (int i = 0; i < resolutions.size(); ++i)
+                        {
+                            auto resolution = resolutions[i];
+                            if (resolution.first == displayMode.width) {
+                                currentResolutionIndex = i;
+                            }
+                        }
+                    }
+                    
+                    Debug::CoreCritical("Current Resolution Index: {0}", currentResolutionIndex);
+
+                    refreshRates = window->GetRefreshRatesForResolution(displayMode.width, displayMode.height);
+
+                    refreshRatesDisplay = new char* [refreshRates.size()];
+
+                    for (int i = 0; i < refreshRates.size(); ++i)
+                    {
+
+                        auto refreshRate = refreshRates[i];
+                        std::string str = std::to_string((float)refreshRate.first / refreshRate.second) + " Hz";
+
+                        refreshRatesDisplay[i] = new char[str.size() + 1];
+                        std::copy(str.begin(), str.end(), refreshRatesDisplay[i]);
+                        refreshRatesDisplay[i][str.size()] = '\0';
+
+                        if (refreshRate.first == displayMode.refreshRateNumerator && refreshRate.second == displayMode.refreshRateDenominator) {
+                            currentRefreshRateIndex = i;
+                        }
+
+                    }
+
+					
+                }
 
                 ImGui::Text("Display Mode:");
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(200);
                 if (ImGui::Combo("##WindowMode", &currentModeIndex, modeLabels, IM_ARRAYSIZE(modeLabels))) {
                     WindowMode newMode = static_cast<WindowMode>(currentModeIndex);
-                    dynamic_cast<WindowsWindow*>(window)->SetWindowMode(newMode);
+                    window->SetWindowMode(newMode);
+                    windowMode = newMode;
                 }
 
                 ImGui::Spacing();
 
-                if (ImGui::Checkbox("Fullscreen", &fullscreen)) {
-                    window->SetFullScreen(fullscreen);
+                ImGui::Text("Resolution :");
+                ImGui::SameLine();
+                ImGui::SetNextItemWidth(200);
+
+                int previousResolutionIndex = currentResolutionIndex;
+                ImGui::Combo("##Resolution", &currentResolutionIndex, resolutionDisplay, resolutions.size());
+                if (currentResolutionIndex != previousResolutionIndex)
+                {
+                    DisplayMode displayMode = {};
+                    displayMode.width = resolutions[currentResolutionIndex].first;
+                    displayMode.height = resolutions[currentResolutionIndex].second;
+                    displayMode.refreshRateNumerator = displayMode.refreshRateNumerator;
+                    displayMode.refreshRateDenominator = displayMode.refreshRateDenominator;
+
+					Debug::CoreCritical("SettingsLayer::OnImGUIRender - Setting resolution: {0}", displayMode.ToString());
+				    window->SetResolutionAndRefreshRate(displayMode);
+                }
+                ImGui::Spacing();
+
+                if (windowMode == WindowMode::BorderlessFullscreen || windowMode == WindowMode::ExclusiveFullscreen)
+                {
+                    if (ImGui::Checkbox("Vsync", &vSync)) {
+                        window->SetVSync(vSync);
+                    }
+
+                    if (vSync && windowMode == WindowMode::ExclusiveFullscreen)
+                    {
+          
+                        ImGui::Text("Refresh rate:");
+                        ImGui::SameLine();
+                        ImGui::SetNextItemWidth(200);
+
+                        int previousRefreshRateIndex = currentRefreshRateIndex;
+                        ImGui::Combo("##Refreshrate", &currentRefreshRateIndex, refreshRatesDisplay, refreshRates.size());
+                        if (currentRefreshRateIndex != previousRefreshRateIndex)
+                        {
+                            DisplayMode displayMode = {};
+                            displayMode.width = displayMode.width;
+                            displayMode.height = displayMode.height;
+                            displayMode.refreshRateNumerator = refreshRates[currentRefreshRateIndex].first;
+                            displayMode.refreshRateDenominator = refreshRates[currentRefreshRateIndex].second;
+
+                            Debug::CoreCritical("SettingsLayer::OnImGUIRender - Setting Refreshrate: {0}", displayMode.ToString());
+                            window->SetResolutionAndRefreshRate(displayMode);
+                        }
+
+                    }
+                    ImGui::Spacing();
                 }
 
-                ImGui::Spacing();
-                ImGui::Separator();
-                ImGui::Spacing();
+
+                
             }
             ImGui::End();
 
@@ -192,9 +233,11 @@ namespace Aurora
 
     private:
         bool open = true;
-		bool vSync = true;
+		bool vSync;
 
-        bool fullscreen = false;
+		DisplayMode displayMode;
+
+        WindowMode windowMode;
 
 		Window* window;
 
