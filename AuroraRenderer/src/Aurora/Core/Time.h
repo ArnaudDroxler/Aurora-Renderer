@@ -24,6 +24,7 @@ namespace Aurora
 
 
         static void Sleep(float seconds);
+        static void PreciseSleep(double seconds);
         static double GetHighPrecisionTime();
 
     private:

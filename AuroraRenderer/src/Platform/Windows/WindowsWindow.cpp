@@ -100,6 +100,8 @@ namespace Aurora
 				SetWindowLong(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
 
 				SetWindowPos(hwnd, nullptr, posX, posY, width, height, SWP_FRAMECHANGED | SWP_NOZORDER);
+
+				context->SetFullscreen(false);
 			}break;
 			case WindowMode::BorderlessFullscreen:
 			{
@@ -177,9 +179,17 @@ namespace Aurora
 				adjustedHeight,
 				SWP_NOZORDER);
 		}
-	
-
-
+		else if (windowMode == WindowMode::BorderlessFullscreen || windowMode == WindowMode::ExclusiveFullscreen)
+		{
+			posX = 0;
+			posY = 0;
+			SetWindowPos(hwnd,
+				nullptr,
+				posX, posY,
+				displayMode.width,
+				displayMode.height,
+				SWP_NOZORDER);
+		}
 	}
 
 	void WindowsWindow::SetEventCallback(const EventCallback& callback)
@@ -439,7 +449,7 @@ namespace Aurora
 
 		RegisterClassEx(&wc);
 
-		DEVMODE dmScreenSettings;
+
 
 		int screenHeight = 0, screenWidth = 0;
 
@@ -450,8 +460,7 @@ namespace Aurora
 
 		if (windowMode == WindowMode::ExclusiveFullscreen)
 		{
-		
-			memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
+			DEVMODE dmScreenSettings = {};
 			dmScreenSettings.dmSize = sizeof(dmScreenSettings);
 			dmScreenSettings.dmPelsWidth = (unsigned long)screenWidth;
 			dmScreenSettings.dmPelsHeight = (unsigned long)screenHeight;
@@ -479,6 +488,30 @@ namespace Aurora
 				this
 			);
 
+		}
+		else if (windowMode == WindowMode::BorderlessFullscreen)
+		{
+			ChangeDisplaySettings(nullptr, 0);
+
+			windowedStyle = WS_OVERLAPPEDWINDOW;
+
+			width = screenWidth;
+			height = screenHeight;
+
+			posX = 0;
+			posY = 0;
+
+			hwnd = CreateWindowEx(
+				0,
+				windowsName,
+				windowsName,
+				windowedStyle,
+				posX, posY, width, height,
+				nullptr,
+				nullptr,
+				hinstance,
+				this
+			);
 		}
 		else if (windowMode == WindowMode::Windowed)
 		{

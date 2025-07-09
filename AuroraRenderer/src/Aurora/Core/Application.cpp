@@ -61,13 +61,14 @@ namespace Aurora
 
 		while (running)
 		{
+			auto frameStart = Time::GetHighPrecisionTime();
+
 			Time::Update();
 
 			window->OnNewFrame();
 
 			for (Layer* layer : layerStack)
 				layer->OnUpdate();
-
 
 			imGuiLayer->Begin();
 			for (Layer* layer : layerStack)
@@ -76,6 +77,18 @@ namespace Aurora
 
 			window->OnUpdate();
 
+			auto frameEnd = Time::GetHighPrecisionTime();
+			float frameTime = frameEnd - frameStart;
+			
+			if (useTargetFrameRate)
+			{
+
+				if (frameTime < targetFrameTime)
+				{
+					float sleepTime = targetFrameTime - frameTime;
+					Time::PreciseSleep(sleepTime);
+				}
+			}
 		}
 
 	}

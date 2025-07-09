@@ -78,14 +78,14 @@ namespace Aurora
 		swapChainDesc.SampleDesc.Count = 1;
 		swapChainDesc.SampleDesc.Quality = 0;
 
-		/*if (fullscreen)
+		if (fullscreen)
 		{
 			swapChainDesc.Windowed = false;
 		}
 		else
 		{
 			swapChainDesc.Windowed = true;
-		}*/
+		}
 
 		swapChainDesc.Windowed = true;
 
@@ -312,11 +312,22 @@ namespace Aurora
 	void DirectXContext::SetVSync(bool enabled)
 	{
 		vSync = enabled;
+
+		auto displayMode = GetCurrentDisplayMode();
+
+		DXGI_MODE_DESC modeDesc = {};
+		modeDesc.Width = displayMode.width;
+		modeDesc.Height = displayMode.height;
+		modeDesc.RefreshRate.Numerator = 60;
+		modeDesc.RefreshRate.Denominator = 1;
+		modeDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+
+		HRESULT result = swapChain->ResizeTarget(&modeDesc);
 	}
 
 	void DirectXContext::OnResize(unsigned int width, unsigned int height)
 	{
-		Debug::CoreLog(" DirectXContext::OnResize {0} {1}", width , height);
+		Debug::CoreLog("DirectXContext::OnResize {0} {1}", width , height);
 
 		if (deviceContext && swapChain && renderTargetView)
 		{
@@ -357,7 +368,6 @@ namespace Aurora
 	{
 		float color[4];
 
-
 		color[0] = red;
 		color[1] = green;
 		color[2] = blue;
@@ -366,8 +376,6 @@ namespace Aurora
 		deviceContext->ClearRenderTargetView(renderTargetView, color);
 
 		deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-		return;
 	}
 
 	void DirectXContext::SwapBuffer()
@@ -380,8 +388,6 @@ namespace Aurora
 		{
 			swapChain->Present(0, 0);
 		}
-
-		return;
 	}
 
 	std::vector<DisplayMode> DirectXContext::GetDisplayModes()
@@ -491,6 +497,8 @@ namespace Aurora
 			current.refreshRateDenominator = desc.BufferDesc.RefreshRate.Denominator;
 		}
 
+		Debug::CoreCritical("DirectXContext::GetCurrentDisplayMode - Current Display Mode: {0}x{1} @ {2}Hz",
+			current.width, current.height, current.refreshRateNumerator / (float)current.refreshRateDenominator);
 		return current;
 	}
 

@@ -22,6 +22,12 @@ namespace Aurora
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 
+		void SetUseTargetFrameRate(bool useFrameRateTarget) { useTargetFrameRate = useFrameRateTarget; }
+		inline bool GetUseTargetFrameRate() const { return useTargetFrameRate; }
+
+		void SetTargetFrameRate(float frameRate) { targetFrameRate = frameRate;  targetFrameTime = 1.0f / targetFrameRate; }
+		inline float GetTargetFrameRate() const { return targetFrameRate; }
+
 		inline Window& GetWindow() { return *window; }
 		inline Window* GetWindowPtr() { return window.get(); }
 
@@ -40,6 +46,10 @@ namespace Aurora
 
 		bool running;
 		bool minimized;
+
+		bool useTargetFrameRate = true;
+		float targetFrameRate = 60.0f;
+		float targetFrameTime = 1.0f / targetFrameRate;
 	};
 
 	Application* CreateApplication();

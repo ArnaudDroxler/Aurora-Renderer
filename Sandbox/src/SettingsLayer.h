@@ -52,6 +52,7 @@ namespace Aurora
         {
 
             ImGui::ShowMetricsWindow();
+            ImGui::ShowDemoWindow();
 
             if (!open) {
                 return;
@@ -177,8 +178,8 @@ namespace Aurora
                     DisplayMode displayMode = {};
                     displayMode.width = resolutions[currentResolutionIndex].first;
                     displayMode.height = resolutions[currentResolutionIndex].second;
-                    displayMode.refreshRateNumerator = displayMode.refreshRateNumerator;
-                    displayMode.refreshRateDenominator = displayMode.refreshRateDenominator;
+                    displayMode.refreshRateNumerator = this->displayMode.refreshRateNumerator;
+                    displayMode.refreshRateDenominator = this->displayMode.refreshRateDenominator;
 
 					Debug::CoreCritical("SettingsLayer::OnImGUIRender - Setting resolution: {0}", displayMode.ToString());
 				    window->SetResolutionAndRefreshRate(displayMode);
@@ -203,8 +204,8 @@ namespace Aurora
                         if (currentRefreshRateIndex != previousRefreshRateIndex)
                         {
                             DisplayMode displayMode = {};
-                            displayMode.width = displayMode.width;
-                            displayMode.height = displayMode.height;
+                            displayMode.width = this->displayMode.width;
+                            displayMode.height = this->displayMode.height;
                             displayMode.refreshRateNumerator = refreshRates[currentRefreshRateIndex].first;
                             displayMode.refreshRateDenominator = refreshRates[currentRefreshRateIndex].second;
 
@@ -216,7 +217,32 @@ namespace Aurora
                     ImGui::Spacing();
                 }
 
+                if (ImGui::Button("Apply Change"))
+                {
 
+                }
+
+                ImGui::Spacing();
+
+                Application& app = Application::Get();
+
+                int framerate = app.GetTargetFrameRate();
+                bool userFramerateLimiter = app.GetUseTargetFrameRate();
+
+                if (ImGui::Checkbox("Use framerate limiter", &userFramerateLimiter)) {
+                    app.SetUseTargetFrameRate(userFramerateLimiter);
+
+                }
+
+                if (userFramerateLimiter)
+                {
+                    ImGui::Text("Target framerate :");
+                    ImGui::SameLine();
+                    ImGui::SetNextItemWidth(200);
+
+                    ImGui::InputInt(" ", &framerate);
+                    app.SetTargetFrameRate(framerate);
+                }
                 
             }
             ImGui::End();

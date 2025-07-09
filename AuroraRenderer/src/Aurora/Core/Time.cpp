@@ -1,7 +1,12 @@
 #include "aurorapch.h"
 #include "Time.h"
 
+#include <chrono>
+#include <thread>
+#include <math.h>
+
 using namespace std::chrono;
+using namespace std;
 
 namespace Aurora
 {
@@ -62,6 +67,34 @@ namespace Aurora
 		{
 			::Sleep(static_cast<DWORD>(seconds * 1000.0f));
 		}
+	}
+	/* fonction form here https://blat-blatnik.github.io/computerBear/making-accurate-sleep-function/ */
+	void Time::PreciseSleep(double seconds) {
+
+
+		static double estimate = 5e-3;
+		static double mean = 5e-3;
+		static double m2 = 0;
+		static int64_t count = 1;
+
+		while (seconds > estimate) {
+			auto start = high_resolution_clock::now();
+			this_thread::sleep_for(milliseconds(1));
+			auto end = high_resolution_clock::now();
+
+			double observed = (end - start).count() / 1e9;
+			seconds -= observed;
+
+			++count;
+			double delta = observed - mean;
+			mean += delta / count;
+			m2 += delta * (observed - mean);
+			double stddev = sqrt(m2 / (count - 1));
+			estimate = mean + stddev;
+		}
+
+		auto start = high_resolution_clock::now();
+		while ((high_resolution_clock::now() - start).count() / 1e9 < seconds);
 	}
 
 	double Time::GetHighPrecisionTime()
