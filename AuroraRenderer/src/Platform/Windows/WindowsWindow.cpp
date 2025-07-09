@@ -124,7 +124,7 @@ namespace Aurora
 
 				context->SetFullscreen(true);
 			} break;
-			case WindowMode::ExclusiveFullscreen:
+			/*case WindowMode::ExclusiveFullscreen:
 			{
 				DisplayMode mode = GetCurrentDisplayMode();
 				DEVMODE dm = {};
@@ -140,7 +140,7 @@ namespace Aurora
 				SetWindowPos(hwnd, HWND_TOP, 0, 0, mode.width, mode.height, SWP_FRAMECHANGED | SWP_NOZORDER);
 
 				context->SetFullscreen(true);
-			} break;
+			} break;*/
 		}
 
 		SetWindowVisibility(true);
@@ -179,7 +179,7 @@ namespace Aurora
 				adjustedHeight,
 				SWP_NOZORDER);
 		}
-		else if (windowMode == WindowMode::BorderlessFullscreen || windowMode == WindowMode::ExclusiveFullscreen)
+		else if (windowMode == WindowMode::BorderlessFullscreen /*|| windowMode == WindowMode::ExclusiveFullscreen*/)
 		{
 			posX = 0;
 			posY = 0;
@@ -458,7 +458,7 @@ namespace Aurora
 
 		DWORD windowedStyle = {};
 
-		if (windowMode == WindowMode::ExclusiveFullscreen)
+		/*if (windowMode == WindowMode::ExclusiveFullscreen)
 		{
 			DEVMODE dmScreenSettings = {};
 			dmScreenSettings.dmSize = sizeof(dmScreenSettings);
@@ -489,7 +489,7 @@ namespace Aurora
 			);
 
 		}
-		else if (windowMode == WindowMode::BorderlessFullscreen)
+		else */if (windowMode == WindowMode::BorderlessFullscreen)
 		{
 			ChangeDisplaySettings(nullptr, 0);
 
@@ -547,7 +547,7 @@ namespace Aurora
 		vSync = false;
 
 		context = new DirectXContext();
-		context->InitDirectX(width, height, vSync, hwnd, windowMode == WindowMode::ExclusiveFullscreen || windowMode == WindowMode::BorderlessFullscreen, 1000.0f, 0.1f);
+		context->InitDirectX(width, height, vSync, hwnd, /*windowMode == WindowMode::ExclusiveFullscreen ||*/ windowMode == WindowMode::BorderlessFullscreen, 1000.0f, 0.1f);
 
 		displayModes = context->GetDisplayModes();
 
@@ -559,7 +559,7 @@ namespace Aurora
 		context->Shutdown();
 		context = nullptr;
 
-		if (windowMode == WindowMode::ExclusiveFullscreen || windowMode == WindowMode::BorderlessFullscreen)
+		if (/*windowMode == WindowMode::ExclusiveFullscreen ||*/ windowMode == WindowMode::BorderlessFullscreen)
 		{
 			ChangeDisplaySettings(nullptr, 0);
 		}

@@ -183,16 +183,17 @@ namespace Aurora
 
 					Debug::CoreCritical("SettingsLayer::OnImGUIRender - Setting resolution: {0}", displayMode.ToString());
 				    window->SetResolutionAndRefreshRate(displayMode);
+				    
                 }
                 ImGui::Spacing();
 
-                if (windowMode == WindowMode::BorderlessFullscreen || windowMode == WindowMode::ExclusiveFullscreen)
+                if (windowMode == WindowMode::BorderlessFullscreen /* || windowMode == WindowMode::ExclusiveFullscreen*/)
                 {
                     if (ImGui::Checkbox("Vsync", &vSync)) {
                         window->SetVSync(vSync);
                     }
 
-                    if (vSync && windowMode == WindowMode::ExclusiveFullscreen)
+                    /*if (vSync && windowMode == WindowMode::ExclusiveFullscreen)
                     {
           
                         ImGui::Text("Refresh rate:");
@@ -213,14 +214,10 @@ namespace Aurora
                             window->SetResolutionAndRefreshRate(displayMode);
                         }
 
-                    }
+                    }*/
                     ImGui::Spacing();
                 }
 
-                if (ImGui::Button("Apply Change"))
-                {
-
-                }
 
                 ImGui::Spacing();
 
@@ -277,7 +274,7 @@ namespace Aurora
 		char** resolutionDisplay = nullptr;
 		char** refreshRatesDisplay = nullptr;
 
-        const char* modeLabels[3] = { "Windowed", "Borderless", "Exclusive" };
+        const char* modeLabels[3] = { "Windowed", "Borderless" };
 
         bool settingsChanged = false;
 

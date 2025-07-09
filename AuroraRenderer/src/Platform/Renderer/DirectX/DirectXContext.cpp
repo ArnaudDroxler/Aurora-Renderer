@@ -313,7 +313,7 @@ namespace Aurora
 	{
 		vSync = enabled;
 
-		auto displayMode = GetCurrentDisplayMode();
+		/*auto displayMode = GetCurrentDisplayMode();
 
 		DXGI_MODE_DESC modeDesc = {};
 		modeDesc.Width = displayMode.width;
@@ -322,7 +322,7 @@ namespace Aurora
 		modeDesc.RefreshRate.Denominator = 1;
 		modeDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 
-		HRESULT result = swapChain->ResizeTarget(&modeDesc);
+		HRESULT result = swapChain->ResizeTarget(&modeDesc);*/
 	}
 
 	void DirectXContext::OnResize(unsigned int width, unsigned int height)
@@ -463,6 +463,8 @@ namespace Aurora
 	{
 		Debug::CoreLog("DirectXContext::SetResolutionAndRefreshRate");
 
+		swapChain->SetFullscreenState(false, nullptr);
+
 		HRESULT result = swapChain->ResizeBuffers(
 			1, 
 			displayMode.width,
@@ -479,6 +481,9 @@ namespace Aurora
 		modeDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 
 		result = swapChain->ResizeTarget(&modeDesc);
+
+
+		swapChain->SetFullscreenState(fullscreen, nullptr);
 
 	}
 
@@ -497,8 +502,7 @@ namespace Aurora
 			current.refreshRateDenominator = desc.BufferDesc.RefreshRate.Denominator;
 		}
 
-		Debug::CoreCritical("DirectXContext::GetCurrentDisplayMode - Current Display Mode: {0}x{1} @ {2}Hz",
-			current.width, current.height, current.refreshRateNumerator / (float)current.refreshRateDenominator);
+		//Debug::CoreCritical("DirectXContext::GetCurrentDisplayMode - Current Display Mode: {0}x{1} @ {2}Hz", current.width, current.height, current.refreshRateNumerator / (float)current.refreshRateDenominator);
 		return current;
 	}
 

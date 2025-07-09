@@ -10,7 +10,7 @@ namespace Aurora
 	enum class WindowMode {
 		Windowed,
 		BorderlessFullscreen,
-		ExclusiveFullscreen
+		//ExclusiveFullscreen
 	};
 
 	struct WindowProperty
