@@ -9,9 +9,17 @@ workspace "AuroraRenderer"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}"
 
+directxtk_version = "2025.7.10.1"
+nuget_packages = "packages"
+
+
 IncludeDir = {}
 IncludeDir["ImGui"] = "AuroraRenderer/external/imgui"
 IncludeDir["ImGuiBackends"] = "AuroraRenderer/external/imgui/backends"
+IncludeDir["DirectXTK"] = nuget_packages .. "/directxtk_desktop_win10." .. directxtk_version .. "/include"
+
+LibDir = {}
+LibDir["DirectXTK"] = nuget_packages .. "/directxtk_desktop_win10." .. directxtk_version .. "/native/lib"
 
 group "Dependencies"
 	include "AuroraRenderer/external/imgui"
@@ -23,7 +31,7 @@ project "AuroraRenderer"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++23"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
@@ -40,7 +48,8 @@ project "AuroraRenderer"
 		"%{prj.name}/src",
 		"%{prj.name}/external/spdlog/include",
         "%{IncludeDir.ImGui}",
-        "%{IncludeDir.ImGuiBackends}"
+        "%{IncludeDir.ImGuiBackends}",
+        "%{IncludeDir.DirectXTK}"
 	}
 
 	defines
@@ -50,26 +59,29 @@ project "AuroraRenderer"
 
 	links 
 	{ 
-		"ImGui"
+		"ImGui",
+		"DirectXTK"
 	}
 
 	filter "configurations:Debug"
 		defines "AURORA_DEBUG"
 		runtime "Debug"
 		symbols "on"
+		libdirs { "%{LibDir.DirectXTK}/x64/Debug" }
 
 	filter "configurations:Release"
 		defines "AURORA_RELEASE"
 		runtime "Release"
 		optimize "on"
+		libdirs { "%{LibDir.DirectXTK}/x64/Release" }
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++23"
-	staticruntime "on"
-
+	staticruntime "off"
+	
 	buildoptions { "/utf-8" }
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
@@ -82,21 +94,25 @@ project "Sandbox"
 		"AuroraRenderer/src",
 		"AuroraRenderer/external/spdlog/include",
         "%{IncludeDir.ImGui}",
-        "%{IncludeDir.ImGuiBackends}"
+        "%{IncludeDir.ImGuiBackends}",
+        "%{IncludeDir.DirectXTK}"
 	}
 
 	links 
 	{
 		"AuroraRenderer",
 		"ImGui",
+		"DirectXTK"
 	}
-		
-	filter "configurations:Debug"
-		defines "AURORA_DEBUG"
-		runtime "Debug"
-		symbols "on"
+        
+    filter "configurations:Debug"
+        defines "AURORA_DEBUG"
+        runtime "Debug"
+        symbols "on"
+		libdirs { "%{LibDir.DirectXTK}/x64/Debug" }
 
-	filter "configurations:Release"
-		defines "AURORA_RELEASE"
-		runtime "Release"
-		optimize "on"
+    filter "configurations:Release"
+        defines "AURORA_RELEASE"
+        runtime "Release"
+        optimize "on"
+		libdirs { "%{LibDir.DirectXTK}/x64/Release" }

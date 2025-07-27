@@ -10,6 +10,9 @@
     <Filter Include="Aurora\Events">
       <UniqueIdentifier>{13B80547-7F78-817D-48B3-CAFAB432C659}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Aurora\ImGui">
+      <UniqueIdentifier>{7937A0DB-659A-2F80-0E20-6836FA61FB02}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
     </Filter>
@@ -27,13 +30,13 @@
     <ClInclude Include="src\Aurora\Core\Application.h">
       <Filter>Aurora\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Aurora\Core\Camera.h">
+      <Filter>Aurora\Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\Aurora\Core\Debug.h">
       <Filter>Aurora\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Aurora\Core\EntryPoint.h">
-      <Filter>Aurora\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Aurora\ImGui\ImGuiLayer.h">
       <Filter>Aurora\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Aurora\Core\Input.h">
@@ -46,6 +49,9 @@
       <Filter>Aurora\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Aurora\Core\LayerStack.h">
+      <Filter>Aurora\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Aurora\Core\Time.h">
       <Filter>Aurora\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Aurora\Core\Window.h">
@@ -63,6 +69,9 @@
     <ClInclude Include="src\Aurora\Events\MouseEvent.h">
       <Filter>Aurora\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Aurora\ImGui\ImGuiLayer.h">
+      <Filter>Aurora\ImGui</Filter>
+    </ClInclude>
     <ClInclude Include="src\AuroraRenderer.h" />
     <ClInclude Include="src\Platform\Renderer\DirectX\DirectXContext.h">
       <Filter>Platform\Renderer\DirectX</Filter>
@@ -77,16 +86,15 @@
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\aurorapch.h" />
-    <ClInclude Include="src\Aurora\Core\Time.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Aurora\Core\Application.cpp">
       <Filter>Aurora\Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Aurora\Core\Debug.cpp">
+    <ClCompile Include="src\Aurora\Core\Camera.cpp">
       <Filter>Aurora\Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Aurora\ImGui\ImGuiLayer.cpp">
+    <ClCompile Include="src\Aurora\Core\Debug.cpp">
       <Filter>Aurora\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Aurora\Core\Layer.cpp">
@@ -94,6 +102,12 @@
     </ClCompile>
     <ClCompile Include="src\Aurora\Core\LayerStack.cpp">
       <Filter>Aurora\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Aurora\Core\Time.cpp">
+      <Filter>Aurora\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Aurora\ImGui\ImGuiLayer.cpp">
+      <Filter>Aurora\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Renderer\DirectX\DirectXContext.cpp">
       <Filter>Platform\Renderer\DirectX</Filter>
@@ -105,6 +119,5 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\aurorapch.cpp" />
-    <ClCompile Include="src\Aurora\Core\Time.cpp" />
   </ItemGroup>
 </Project>

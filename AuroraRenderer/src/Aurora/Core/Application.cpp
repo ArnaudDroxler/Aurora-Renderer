@@ -27,6 +27,8 @@ namespace Aurora
 		imGuiLayer = new ImGuiLayer();
 		PushOverlay(imGuiLayer);
 
+		camera = Camera(Vector3(0.0f, 0.0f, -3.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+
 		running = true;
 	}
 
@@ -36,16 +38,19 @@ namespace Aurora
 	}
 
 	void Application::OnEvent(Event& event)
-	{
-		if (event.GetName() != "MouseMoved")
-		{
-			Debug::CoreLog(event.ToString());
-		}
-	
+	{	
 
 		EventDispatcher dispatcher(event);
 		dispatcher.Dispatch<WindowCloseEvent>(std::bind(&Application::OnWindowClose, this, std::placeholders::_1));
 		dispatcher.Dispatch<WindowResizeEvent>(std::bind(&Application::OnWindowResize, this, std::placeholders::_1));
+
+		dispatcher.Dispatch<KeyPressedEvent>(std::bind(&Application::OnKeyPressed, this, std::placeholders::_1));
+		dispatcher.Dispatch<KeyReleasedEvent>(std::bind(&Application::OnKeyReleased, this, std::placeholders::_1));
+
+		dispatcher.Dispatch<MouseMovedEvent>(std::bind(&Application::OnMouseMoved, this, std::placeholders::_1));
+		dispatcher.Dispatch<MouseScrolledEvent>(std::bind(&Application::OnMouseScrolled, this, std::placeholders::_1));
+		dispatcher.Dispatch<MouseButtonPressedEvent>(std::bind(&Application::OnMouseButtonPressed, this, std::placeholders::_1));
+		dispatcher.Dispatch<MouseButtonReleasedEvent>(std::bind(&Application::OnMouseButtonReleased, this, std::placeholders::_1));
 
 		for (auto it = layerStack.end(); it != layerStack.begin(); )
 		{
@@ -82,7 +87,6 @@ namespace Aurora
 			
 			if (useTargetFrameRate)
 			{
-
 				if (frameTime < targetFrameTime)
 				{
 					float sleepTime = targetFrameTime - frameTime;
@@ -122,6 +126,74 @@ namespace Aurora
 		}
 
 		minimized = false;
+
+		return false;
+	}
+
+	bool Application::OnKeyPressed(KeyPressedEvent& event)
+	{
+		KeyCode keyCode = (KeyCode)event.GetKeyCode();
+		switch (keyCode)
+		{
+		case KeyCode::W:
+			camera.MoveForward(1);
+			break;
+		case KeyCode::S:
+			camera.MoveForward(-1);
+			break;
+		case KeyCode::A:
+			camera.MoveRight(-1);
+			break;
+		case KeyCode::D:
+			camera.MoveRight(1);
+			break;
+		case KeyCode::Q:
+			camera.MoveUp(1);
+			break;
+		case KeyCode::E:
+			camera.MoveUp(-1);
+			break;
+		default:
+			break;
+		}
+		return false;
+	}
+
+	bool Application::OnKeyReleased(KeyReleasedEvent& event)
+	{
+		return false;
+	}
+
+	bool Application::OnMouseButtonPressed(MouseButtonPressedEvent& event)
+	{
+		return false;
+	}
+
+	bool Application::OnMouseButtonReleased(MouseButtonReleasedEvent& event)
+	{
+		return false;
+	}
+
+	bool Application::OnMouseMoved(MouseMovedEvent& event)
+	{
+
+		float posX = event.GetMouseX();
+		float posY = event.GetMouseY();
+
+		float deltaX = lastMousePositionX - posX;
+		float deltaY = lastMousePositionY - posY;
+
+		camera.Rotate(deltaX, deltaY);
+
+		return false;
+	}
+
+	bool Application::OnMouseScrolled(MouseScrolledEvent& event)
+	{
+
+		float delta = event.GetY();
+
+		camera.Zoom(delta);
 
 		return false;
 	}

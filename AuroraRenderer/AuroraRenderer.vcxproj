@@ -57,10 +57,10 @@
       <PrecompiledHeaderFile>aurorapch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;AURORA_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;external\spdlog\include;external\imgui;external\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;external\spdlog\include;external\imgui;external\imgui\backends;..\packages\directxtk_desktop_win10.2025.7.10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
@@ -69,6 +69,10 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>DirectXTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\packages\directxtk_desktop_win10.2025.7.10.1\native\lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -76,13 +80,13 @@
       <PrecompiledHeaderFile>aurorapch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;AURORA_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;external\spdlog\include;external\imgui;external\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;external\spdlog\include;external\imgui;external\imgui\backends;..\packages\directxtk_desktop_win10.2025.7.10.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
@@ -92,42 +96,48 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalDependencies>DirectXTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\packages\directxtk_desktop_win10.2025.7.10.1\native\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Aurora\Core\Application.h" />
+    <ClInclude Include="src\Aurora\Core\Camera.h" />
     <ClInclude Include="src\Aurora\Core\Debug.h" />
     <ClInclude Include="src\Aurora\Core\EntryPoint.h" />
-    <ClInclude Include="src\Aurora\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Aurora\Core\Input.h" />
     <ClInclude Include="src\Aurora\Core\KeyCode.h" />
     <ClInclude Include="src\Aurora\Core\Layer.h" />
     <ClInclude Include="src\Aurora\Core\LayerStack.h" />
+    <ClInclude Include="src\Aurora\Core\Time.h" />
     <ClInclude Include="src\Aurora\Core\Window.h" />
     <ClInclude Include="src\Aurora\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Aurora\Events\Event.h" />
     <ClInclude Include="src\Aurora\Events\KeyEvent.h" />
     <ClInclude Include="src\Aurora\Events\MouseEvent.h" />
+    <ClInclude Include="src\Aurora\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\AuroraRenderer.h" />
     <ClInclude Include="src\Platform\Renderer\DirectX\DirectXContext.h" />
     <ClInclude Include="src\Platform\Renderer\GraphicContext.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\aurorapch.h" />
-    <ClInclude Include="src\Aurora\Core\Time.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Aurora\Core\Application.cpp" />
+    <ClCompile Include="src\Aurora\Core\Camera.cpp" />
     <ClCompile Include="src\Aurora\Core\Debug.cpp" />
-    <ClCompile Include="src\Aurora\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Aurora\Core\Layer.cpp" />
     <ClCompile Include="src\Aurora\Core\LayerStack.cpp" />
+    <ClCompile Include="src\Aurora\Core\Time.cpp" />
+    <ClCompile Include="src\Aurora\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Platform\Renderer\DirectX\DirectXContext.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\aurorapch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Aurora\Core\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="external\imgui\ImGui.vcxproj">

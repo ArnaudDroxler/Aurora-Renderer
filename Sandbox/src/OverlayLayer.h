@@ -81,6 +81,7 @@ namespace Aurora
             ImGui::End();
 
         }
+
         void OnUpdate()
         {
             if (Input::GetKeyDown(KeyCode::F2))

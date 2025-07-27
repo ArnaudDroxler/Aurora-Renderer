@@ -2,9 +2,12 @@
 
 #include "Aurora/Core/Window.h"
 #include "Aurora/Events/ApplicationEvent.h"
+#include "Aurora/Events/MouseEvent.h"
+#include "Aurora/Events/KeyEvent.h"
 
 #include "Aurora/Core/LayerStack.h"
 #include "Aurora/ImGui/ImGuiLayer.h"
+#include "Aurora/Core/Camera.h"
 
 
 namespace Aurora
@@ -15,7 +18,7 @@ namespace Aurora
 		Application();
 		virtual ~Application();
 
-		void OnEvent(Event& e);
+		void OnEvent(Event& event);
 
 		void Run();
 
@@ -35,12 +38,22 @@ namespace Aurora
 
 	private: 
 
-		bool OnWindowClose(WindowCloseEvent& e);
-		bool OnWindowResize(WindowResizeEvent& e);
+		bool OnWindowClose(WindowCloseEvent& event);
+		bool OnWindowResize(WindowResizeEvent& event);
+
+		bool OnKeyPressed(KeyPressedEvent& event);
+		bool OnKeyReleased(KeyReleasedEvent& event);
+
+		bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
+		bool OnMouseButtonReleased(MouseButtonReleasedEvent& event);
+		bool OnMouseMoved(MouseMovedEvent& event);
+		bool OnMouseScrolled(MouseScrolledEvent& event);
 
 		std::unique_ptr<Window> window;
 		LayerStack layerStack;
 		ImGuiLayer* imGuiLayer;
+
+		Camera camera;
 
 		static Application* Instance;
 
@@ -50,6 +63,8 @@ namespace Aurora
 		bool useTargetFrameRate = true;
 		float targetFrameRate = 60.0f;
 		float targetFrameTime = 1.0f / targetFrameRate;
+
+		float lastMousePositionX = 0, lastMousePositionY = 0;
 	};
 
 	Application* CreateApplication();
